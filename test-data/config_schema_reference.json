@@ -31,6 +31,11 @@
     "charge_selection": "intensity",
     "log_target_rt_window": false,
     "log_target_charges": "reference",
+    "charge_check": {
+      "min_score": 0.25,
+      "max_dz": 2,
+      "min_resolvability": 2
+    },
     "rank_by": "qscore",
     "max_precursors": 3,
     "min_precursor_charge": 2,
