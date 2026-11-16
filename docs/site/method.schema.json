@@ -691,13 +691,26 @@
               "type": "object",
               "additionalProperties": false,
               "properties": {
+                "model": {
+                  "type": "string",
+                  "enum": [
+                    "bond_yield",
+                    "w"
+                  ],
+                  "description": "What the gate admits by. `bond_yield`: the predicted bond yield E of the coefficients below, `threshold` in expected bonds. `w`: the witness probability W, the chance that the MS3 shows at least one bond of its target fragment, from gradient-boosted trees over 36 values known when the MS3 is planned (the ms3_esm package's w_ext_v3, shipped as share/OpenMS/FLASHIDA/ms3_w_gate.json; fitted on E. coli LC runs in the Intact Protein mode, b and y fragments of an HCD MS2). Under `w`: `threshold` is a probability in (0, 1) and must be set; the coefficients are read and unused; `global.duration` must be set (the run length is one of the inputs); multiplexed precursor or fragment charges are refused; the queued MS3 are scored again at every MS1 and withdrawn if W falls below the threshold. W is logged in `scan_commands.tsv` (`witness_probability`), every scoring with its inputs in `events.log` (`[MS3-W]`).",
+                  "default": "bond_yield",
+                  "x-adr": [
+                    "0076"
+                  ]
+                },
                 "threshold": {
                   "type": "number",
                   "exclusiveMinimum": 0,
-                  "description": "Admit an MS3 only if its predicted bond yield, E = p × (L − 1), is at least this many bonds: p is the model's chance that one backbone bond inside the target fragment is witnessed by the MS3, and L the fragment's length in residues (its ion index). 1 aims at the bonds MS3 witnesses in a run that does MS3; about 6 at a run's total coverage, where an MS3 must beat the MS2 its time displaces. Above 0.",
+                  "description": "Admit an MS3 only if its predicted bond yield, E = p × (L − 1), is at least this many bonds: p is the model's chance that one backbone bond inside the target fragment is witnessed by the MS3, and L the fragment's length in residues (its ion index). 1 aims at the bonds MS3 witnesses in a run that does MS3; about 6 at a run's total coverage, where an MS3 must beat the MS2 its time displaces. Above 0. Under `model: w`: the lowest witness probability W admitted, in (0, 1), required; the model's package names 0.5 and 0.835 and chooses neither.",
                   "default": 1,
                   "x-adr": [
-                    "0069"
+                    "0069",
+                    "0076"
                   ]
                 },
                 "intercept": {
@@ -764,7 +777,8 @@
               "description": "The MS3 yield gate. Every characterization MS3 target, in every mode and with or without `per_proteoform`, is admitted only at a charge whose predicted bond yield reaches `threshold`; its charges are tried strongest first, and a refused target takes no place and, under `per_proteoform`, no cleavage slot. The candidates are walked by predicted yield, highest first, or by intensity (`rank_by`). A target with no ion index (a raw mass that matches no ion) is admitted untested, after every tested target. Each MS3's yield is logged in `scan_commands.tsv` (`predicted_bond_yield`), each refusal in `events.log`.",
               "x-default-text": "absent: no yield gate, every MS3 the plan chooses is acquired",
               "x-adr": [
-                "0069"
+                "0069",
+                "0076"
               ]
             },
             "order": {
@@ -844,13 +858,26 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
+            "model": {
+              "type": "string",
+              "enum": [
+                "bond_yield",
+                "w"
+              ],
+              "description": "What the gate admits by. `bond_yield`: the predicted bond yield E of the coefficients below, `threshold` in expected bonds. `w`: the witness probability W, the chance that the MS3 shows at least one bond of its target fragment, from gradient-boosted trees over 36 values known when the MS3 is planned (the ms3_esm package's w_ext_v3, shipped as share/OpenMS/FLASHIDA/ms3_w_gate.json; fitted on E. coli LC runs in the Intact Protein mode, b and y fragments of an HCD MS2). Under `w`: `threshold` is a probability in (0, 1) and must be set; the coefficients are read and unused; `global.duration` must be set (the run length is one of the inputs); multiplexed precursor or fragment charges are refused; the queued MS3 are scored again at every MS1 and withdrawn if W falls below the threshold. W is logged in `scan_commands.tsv` (`witness_probability`), every scoring with its inputs in `events.log` (`[MS3-W]`).",
+              "default": "bond_yield",
+              "x-adr": [
+                "0076"
+              ]
+            },
             "threshold": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Admit an MS3 only if its predicted bond yield, E = p × (L − 1), is at least this many bonds: p is the model's chance that one backbone bond inside the target fragment is witnessed by the MS3, and L the fragment's length in residues (its ion index). 1 aims at the bonds MS3 witnesses in a run that does MS3; about 6 at a run's total coverage, where an MS3 must beat the MS2 its time displaces. Above 0.",
+              "description": "Admit an MS3 only if its predicted bond yield, E = p × (L − 1), is at least this many bonds: p is the model's chance that one backbone bond inside the target fragment is witnessed by the MS3, and L the fragment's length in residues (its ion index). 1 aims at the bonds MS3 witnesses in a run that does MS3; about 6 at a run's total coverage, where an MS3 must beat the MS2 its time displaces. Above 0. Under `model: w`: the lowest witness probability W admitted, in (0, 1), required; the model's package names 0.5 and 0.835 and chooses neither.",
               "default": 1,
               "x-adr": [
-                "0069"
+                "0069",
+                "0076"
               ]
             },
             "intercept": {
@@ -917,7 +944,8 @@
           "description": "The quantification MS3's own yield gate, with the keys of `identification.characterization.yield_gate`: a labelled fragment is bought only at a charge whose window SNR exceeds 1 and whose predicted bond yield reaches `threshold`, and a refused fragment takes no place; the fragments are walked by predicted yield, highest first, or by intensity (`rank_by`). Its own coefficients, because these MS3 use `ms_settings.ms3_quant`; the model forecasts bond coverage, so for a reporter read it stands in only for \"this MS3 will have signal\". Inert under `scan: ms2`.",
           "x-default-text": "absent: no yield gate",
           "x-adr": [
-            "0069"
+            "0069",
+            "0076"
           ]
         },
         "labelling": {
