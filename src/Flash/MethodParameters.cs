@@ -395,7 +395,8 @@ namespace Flash
                 precursor_charge = g.PrecursorCharge,
                 mass_ratio = g.MassRatio,
                 fragment_iso_cos = g.FragmentIsoCos,
-                rank_by = g.RankBy
+                rank_by = g.RankBy,
+                model = g.Model
             };
         }
 
@@ -776,7 +777,10 @@ namespace Flash
             {
                 Threshold = 0.5, Intercept = -30.5, FragmentIntensity = 1.25, PrecursorIntensity = 0.375,
                 PrecursorCharge = -0.0625, MassRatio = -2.5, FragmentIsoCos = 20.5,
-                RankBy = "intensity"   // non-default: yield
+                RankBy = "intensity",  // non-default: yield
+                // ADR-0076: the default, written out. "w" is refused under this config's precursor_charges
+                // "multiplexed"; JsonConfigTests and Config_SchemaProjection_test cover it.
+                Model = "bond_yield"
             };
             // Channel names must be valid for the labelling above, or Config throws at load.
             // tmt10plex's N/C channels are used on purpose: they only exist in the 10-plex+ schemes,
@@ -958,7 +962,8 @@ namespace Flash
             {
                 Threshold = 0.75, Intercept = -31.0, FragmentIntensity = 1.5, PrecursorIntensity = 0.5,
                 PrecursorCharge = -0.125, MassRatio = -2.75, FragmentIsoCos = 21.5,
-                RankBy = "intensity"   // non-default: yield
+                RankBy = "intensity",  // non-default: yield
+                Model = "bond_yield"   // ADR-0076: see the quantification gate above
             };
             c.Identification.Characterization.Order = "random";   // non-default: ranked
             c.Identification.Characterization.Exploration = new ExplorationBlockConfig

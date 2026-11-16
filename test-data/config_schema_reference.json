@@ -109,7 +109,8 @@
         "precursor_charge": -0.125,
         "mass_ratio": -2.75,
         "fragment_iso_cos": 21.5,
-        "rank_by": "intensity"
+        "rank_by": "intensity",
+        "model": "bond_yield"
       },
       "order": "random",
       "exploration": {
@@ -149,7 +150,8 @@
       "precursor_charge": -0.0625,
       "mass_ratio": -2.5,
       "fragment_iso_cos": 20.5,
-      "rank_by": "intensity"
+      "rank_by": "intensity",
+      "model": "bond_yield"
     },
     "labelling": "tmt10plex",
     "reporter_mz_tol": 0.0031,

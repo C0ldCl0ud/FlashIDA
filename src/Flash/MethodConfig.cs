@@ -217,8 +217,13 @@ namespace Flash
     [JsonKey("yield_gate")]
     public class YieldGateConfig
     {
+        // ADR-0076. Always emitted as a real string; the C++ side refuses anything but the two values.
+        [JsonKey("model")]
+        [Description("What the gate admits by: bond_yield (the default: the predicted bond yield E of the coefficients below, threshold in expected bonds) or w (the witness probability W, the chance the MS3 shows at least one bond of its fragment, from the trees in share/OpenMS/FLASHIDA/ms3_w_gate.json; threshold a probability in (0, 1) that must be set; the coefficients are then unused; needs global.duration and refuses multiplexed precursor or fragment charges).")]
+        public string Model { get; set; } = "bond_yield";
+
         [JsonKey("threshold")]
-        [Description("Admit an MS3 only if its predicted bond yield E = p x (L - 1), the bonds inside its target fragment it is expected to witness, is at least this many (> 0). 1 aims at the bonds MS3 witnesses; about 6 at a run's total coverage (an MS3 must beat the MS2 its time displaces).")]
+        [Description("Under model bond_yield: admit an MS3 only if its predicted bond yield E = p x (L - 1), the bonds inside its target fragment it is expected to witness, is at least this many (> 0). 1 aims at the bonds MS3 witnesses; about 6 at a run's total coverage (an MS3 must beat the MS2 its time displaces). Under model w: the lowest witness probability W admitted, in (0, 1), required (the model's package names 0.5 and 0.835 and chooses neither).")]
         public double Threshold { get; set; } = 1.0;
 
         [JsonKey("intercept")]
@@ -1207,7 +1212,7 @@ namespace Flash
         public JsonExplorationBlockConfig exploration { get; set; }
     }
 
-    // ADR-0069. Emit DTO for YieldGateConfig; all eight keys written whenever the block is.
+    // ADR-0069. Emit DTO for YieldGateConfig; all nine keys written whenever the block is (model: ADR-0076).
     public class JsonYieldGateConfig
     {
         public double threshold { get; set; }
@@ -1218,6 +1223,7 @@ namespace Flash
         public double mass_ratio { get; set; }
         public double fragment_iso_cos { get; set; }
         public string rank_by { get; set; }
+        public string model { get; set; }   // ADR-0076
     }
 
     public class JsonReferenceConfig
