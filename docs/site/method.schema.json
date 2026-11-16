@@ -217,6 +217,16 @@
             "0036"
           ]
         },
+        "max_isolation_width": {
+          "type": "number",
+          "minimum": 0,
+          "description": "The widest MS2 isolation window, the same for every charge. A window is the measured envelope of the charge plus 0.4 Th on each side; one wider than this value is narrowed to it, keeping its centre. It holds for the anchor charge, every additional charge a `multiplexed` scan co-isolates, exploration pre-scans, and the MS2 isolation of an MS3. The fragment window of an MS3 is not capped. `0` means no cap.",
+          "default": 0,
+          "x-unit": "Th",
+          "x-adr": [
+            "0077"
+          ]
+        },
         "rank_by": {
           "type": "string",
           "description": "How the deconvolved species of a survey are ordered before the `max_precursors` budget is spent.",

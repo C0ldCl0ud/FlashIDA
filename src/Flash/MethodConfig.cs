@@ -115,6 +115,10 @@ namespace Flash
         [Description("Minimum number of charge states for a species to be selected; 1 = no floor. Under \"separate\" and \"multiplexed\" it counts the acquisition charge set; under precursor_charges \"single\" it counts the charges the species resolves, and one is acquired. A species below the floor costs no max_precursors slot.")]
         public int MinChargeStates { get; set; } = 1;
 
+        [JsonKey("max_isolation_width")]
+        [Description("The widest MS2 isolation window, in Th, for every charge; 0 = no cap (default). A wider window (the measured envelope plus 0.4 Th per side) is narrowed to this width around its centre: the anchor, every co-isolated charge, exploration pre-scans and an MS3's MS2 isolation. Negative is refused (ADR-0077).")]
+        public double MaxIsolationWidth { get; set; } = 0.0;
+
         [JsonKey("log_target_rt_window")]
         [Description("Inclusion from files.target_logs: true (default), a reference mass is a target only within rt_window of a reference acquisition of it; false, at every retention time (the behaviour from 2025-07-07 to 2026-10-21, e.g. for a reference whose gradient does not match the run).")]
         public bool LogTargetRtWindow { get; set; } = true;
@@ -952,6 +956,7 @@ namespace Flash
         public double snr_threshold { get; set; }
         public int max_charge_states { get; set; }
         public int min_charge_states { get; set; }
+        public double max_isolation_width { get; set; }
         public string charge_selection { get; set; }
         public bool log_target_rt_window { get; set; }
         public string log_target_charges { get; set; }

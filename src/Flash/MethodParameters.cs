@@ -165,6 +165,7 @@ namespace Flash
                     snr_threshold = c.PrecursorSelection.SnrThreshold,
                     max_charge_states = c.PrecursorSelection.MaxChargeStates,
                     min_charge_states = c.PrecursorSelection.MinChargeStates,
+                    max_isolation_width = c.PrecursorSelection.MaxIsolationWidth,
                     // Verbatim, not lower-cased: C++ accepts only the exact spellings (ADR-0059).
                     charge_selection = c.PrecursorSelection.ChargeSelection,
                     log_target_rt_window = c.PrecursorSelection.LogTargetRtWindow,
@@ -703,6 +704,8 @@ namespace Flash
             c.PrecursorSelection.SnrThreshold = 1.7;
             c.PrecursorSelection.MaxChargeStates = 6;
             c.PrecursorSelection.MinChargeStates = 2;
+            // ADR-0077. Non-default (0 = no cap).
+            c.PrecursorSelection.MaxIsolationWidth = 1.5;
             // ADR-0059. Non-default; "purity" would be refused here because PrecursorCharges above is
             // "multiplexed", so the reference authors "intensity".
             c.PrecursorSelection.ChargeSelection = "intensity";
