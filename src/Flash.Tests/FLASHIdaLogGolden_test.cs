@@ -774,6 +774,23 @@ namespace Flash.Tests
                     "ms1_cytc.txt", "ms2_cytc_fresh_scan57.txt", feedMs3: true, ms3Map: ms3Map, minMs2Commands: 1);
         }
 
+        // ADR-0076: the W gate. method_ms3_cytc_fragments_w_gate.json is method_ms3_cytc_fragments_yield_gate.json with
+        // the gate's model switched to w at a witness probability of 0.5: the shipped model (share/OpenMS/FLASHIDA/
+        // ms3_w_gate.json) scores every candidate, walked by W at the plan's running rank, so the gate both refuses and
+        // promotes the next candidates. The row's witness_probability is the decision value; predicted_bond_yield is -1.
+        [Test, Category("Tier2")]
+        public void Golden_MS3_FragmentsObjective_WGate_CytC()
+        {
+            var ms3Map = BuildMs3MassMap(SpectraDir);
+            if (ms3Map.Count == 0)
+            {
+                Assert.Pass("No ms3_cytc_*_scan*.txt fixtures present — W-gated fragments MS3 cytC golden skipped cleanly (no MS2-as-MS3 fabrication).");
+                return;
+            }
+            RunCase("ms3_w_gate_cytc", "method_ms3_cytc_fragments_w_gate.json", "ms1_cytc.txt",
+                    "ms2_cytc_fresh_scan57.txt", feedMs3: true, ms3Map: ms3Map, minMs2Commands: 1);
+        }
+
         // The THIRD objective on the same cytC data (ADR-0023). ambiguity and coverage both select out of
         // the mapped-fragment table; exhaustive selects out of the winner MS2 scan's RAW deconvolved
         // masses, so masses that matched no theoretical fragment become MS3 targets too — in this
