@@ -777,9 +777,9 @@ namespace Flash.Tests
         // ADR-0076: the W gate. method_ms3_cytc_fragments_w_gate.json is method_ms3_cytc_fragments_yield_gate.json with
         // the gate's model switched to w at a witness probability of 0.941: the shipped model (share/OpenMS/FLASHIDA/
         // ms3_w_gate.json) scores every candidate, walked by W at the plan's running rank. Ungated, this recipe's 75
-        // planned MS3 sit at W 0.910-0.962; 0.941 lies in a 0.0024 gap (0.93991-0.94231) and refuses 10 of them, so the
-        // gate both refuses and promotes the next candidates. The row's witness_probability is the decision value;
-        // predicted_bond_yield is -1.
+        // planned MS3 sit at W 0.910-0.962; 0.941 lies in a 0.0024 gap (0.93991-0.94231) and refuses 10 of them (four
+        // plans lose targets; no candidate behind them reaches 0.941, so none is promoted): 65 MS3 against 75. The row's
+        // witness_probability is the decision value; predicted_bond_yield is -1.
         [Test, Category("Tier2")]
         public void Golden_MS3_FragmentsObjective_WGate_CytC()
         {
