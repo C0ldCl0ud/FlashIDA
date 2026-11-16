@@ -379,6 +379,13 @@ namespace Flash.Tests
         public void Golden_WindowScan_CytC() =>
             RunCase("window_scan_cytc", "method_window_cytc.json", "ms1_cytc.txt", "ms2_cytc_fresh_scan57.txt", minMs2Commands: 2);
 
+        // ADR-0078: the charge check. method_charge_check_cytc.json is method_window_cytc.json without the Window scan and
+        // with precursor_selection.charge_check: true. Every selected cytC window is measured on its survey before it is
+        // acquired, and scan_commands.tsv's seven charge_check columns carry the decision of every MS2 row.
+        [Test, Category("Tier2")]
+        public void Golden_ChargeCheck_CytC() =>
+            RunCase("charge_check_cytc", "method_charge_check_cytc.json", "ms1_cytc.txt", "ms2_cytc_fresh_scan57.txt", minMs2Commands: 2);
+
         /// <summary>
         /// The strict close-out acceptance check: exactly one MS2 in the run, and its identification row closed cytC out.
         /// </summary>

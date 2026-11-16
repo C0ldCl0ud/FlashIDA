@@ -336,6 +336,55 @@ namespace Flash.Tests
             Assert.AreEqual(2.5, Convert.ToDouble(block["margin"], System.Globalization.CultureInfo.InvariantCulture));
         }
 
+        // ADR-0078: precursor_selection.charge_check is true, false or a block, as window_scan is. Unauthored it is null and
+        // crosses the bridge as false (C++ treats it as absent). An authored true is the block with its defaults, an authored
+        // false is null, and a block round-trips with its three values and crosses as the block.
+        [Test, Category("Tier1")]
+        public void PrecursorSelection_ChargeCheck_DefaultFalse_AuthoredRoundTrips()
+        {
+            var mp = LoadJsonMethod("method_ms3_cytc_real.json");
+            Assert.IsNull(mp.Config.PrecursorSelection.ChargeCheck, "method_ms3_cytc_real.json authors no charge_check");
+            var parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(mp.ToCppJson());
+            var ps = (Dictionary<string, object>)parsed["precursor_selection"];
+            Assert.AreEqual(false, ps["charge_check"]);
+
+            // The boolean forms, as a method file authors them (the committed charge-check config writes true).
+            var on = LoadJsonMethod("method_charge_check_cytc.json");
+            Assert.IsNotNull(on.Config.PrecursorSelection.ChargeCheck, "charge_check: true is the block with its defaults");
+            Assert.AreEqual(0.30, on.Config.PrecursorSelection.ChargeCheck.MinScore);
+            Assert.AreEqual(3, on.Config.PrecursorSelection.ChargeCheck.MaxDz);
+            Assert.AreEqual(2.5, on.Config.PrecursorSelection.ChargeCheck.MinResolvability);
+            string authoredTrue = MethodConfigSerializer.Serialize(on.Config);
+            StringAssert.Contains("\"charge_check\"", authoredTrue);
+            var raw = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(authoredTrue);
+            ((Dictionary<string, object>)raw["precursor_selection"])["charge_check"] = false;
+            Assert.IsNull(MethodConfigSerializer.Deserialize(new JavaScriptSerializer().Serialize(raw)).PrecursorSelection.ChargeCheck,
+                "charge_check: false is off");
+            ((Dictionary<string, object>)raw["precursor_selection"])["charge_check"] = "yes";
+            Assert.Throws<ArgumentException>(
+                () => MethodConfigSerializer.Deserialize(new JavaScriptSerializer().Serialize(raw)),
+                "anything but true, false or a block is refused");
+            ((Dictionary<string, object>)raw["precursor_selection"])["charge_check"] =
+                new Dictionary<string, object> { { "threshold", 0.3 } };
+            Assert.Throws<ArgumentException>(
+                () => MethodConfigSerializer.Deserialize(new JavaScriptSerializer().Serialize(raw)),
+                "an unknown key in the block is refused");
+
+            // The block.
+            mp.Config.PrecursorSelection.ChargeCheck = new ChargeCheckConfig { MinScore = 0.4, MaxDz = 2, MinResolvability = 3.0 };
+            var back = MethodConfigSerializer.Deserialize(MethodConfigSerializer.Serialize(mp.Config));
+            Assert.IsNotNull(back.PrecursorSelection.ChargeCheck);
+            Assert.AreEqual(0.4, back.PrecursorSelection.ChargeCheck.MinScore);
+            Assert.AreEqual(2, back.PrecursorSelection.ChargeCheck.MaxDz);
+            Assert.AreEqual(3.0, back.PrecursorSelection.ChargeCheck.MinResolvability);
+            parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(mp.ToCppJson());
+            ps = (Dictionary<string, object>)parsed["precursor_selection"];
+            var block = (Dictionary<string, object>)ps["charge_check"];
+            Assert.AreEqual(0.4, Convert.ToDouble(block["min_score"], System.Globalization.CultureInfo.InvariantCulture));
+            Assert.AreEqual(2, Convert.ToInt32(block["max_dz"], System.Globalization.CultureInfo.InvariantCulture));
+            Assert.AreEqual(3.0, Convert.ToDouble(block["min_resolvability"], System.Globalization.CultureInfo.InvariantCulture));
+        }
+
         // ADR-0071 (amended): ms_settings.window_scan, the Window scan's own scan config. Unauthored it is null and
         // the key is not emitted (a Window scan then takes ms1's parameters); authored it round-trips and crosses the
         // bridge, a source-region key left at 0 taking the survey's value; it has no range keys.
