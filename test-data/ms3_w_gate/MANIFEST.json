@@ -1,0 +1,157 @@
+{
+ "name": "ms3_w_gate",
+ "version": "8.2",
+ "date": "2026-11-16",
+ "what": "W of the MS3 gate, documented for building it into FLASHIda: the probability that the MS3 of a planned target fragment shows at least one bond of that fragment. The model is W of model version 3 (w_ext_v3.json), unchanged.",
+ "status": "a fixed version of the model and its documentation; no threshold is chosen or frozen, no gate is released, nothing is deployed",
+ "for": "LC runs in the application mode Intact Protein; an MS3 of a b or y fragment of an HCD MS2 with at least two residues",
+ "not_for": "peptide mode, direct infusion, other samples than E. coli: W is too high there (results/REPORT_v5.md, REPORT_v6.md)",
+ "model": {
+  "file": "w_ext_v3.json",
+  "kind": "XGBoost gradient-boosted trees, objective binary:logistic",
+  "xgboost_version_of_the_fit": "3.4.1",
+  "trees": 84,
+  "inputs": 36,
+  "base_score": "4.1593963E-1",
+  "output": "W = 1 / (1 + exp(-(sum of the leaf values + log(base_score / (1 - base_score)))))",
+  "fitted_on": {
+   "set": "development folds dev0-dev4 (E. coli LC, protein split)",
+   "ms3": 8482,
+   "ms3_that_show_a_bond": 3528,
+   "bond_rows": 182707,
+   "proteins": 965,
+   "splits_sha256": "32c8d3603ee9bcf7c1598da8ac09dcfd375b341dedbae3ddefe7a4f468d1f9bc"
+  },
+  "labels": "bond observed = terminal fragment of the MS3 precursor at the bond, 10 ppm after a run offset, -1/+1 isotope tried, on the offline deconvolution of FLASHDeconv with -SD:min_cos 0.85 0.85 0.5 (cosine 0.5 for MS3); covered = as the engine knew at enqueue",
+  "origin": "models/final/w_ext_v3.json",
+  "sha256": "47f0babed8f470e242510765cfc3e49c35dcfce5d035efc149bf025a81ba425b"
+ },
+ "inputs": {
+  "order": [
+   "frag_N",
+   "z_ms2",
+   "z_ms3",
+   "z_ms3_per_res",
+   "ce1",
+   "cid3",
+   "log10_intensity",
+   "L",
+   "id_score",
+   "iso_cos",
+   "qscore",
+   "snr",
+   "has_shift",
+   "n_ms2_prior",
+   "n_ms3_prior",
+   "mass_ms2",
+   "mass_ms3",
+   "x_prec_intensity",
+   "x_prec_qscore",
+   "x_prec_iso_cos",
+   "x_prec_snr",
+   "x_ms1_plan",
+   "x_charge_snr",
+   "x_charge_cos",
+   "x_charge_score",
+   "x_ppm_error",
+   "x_ms2_mass_count",
+   "x_ms2_tic_coverage",
+   "x_ms2_precursor_share",
+   "x_ms2_fragment_count",
+   "x_ms2_tag_count",
+   "x_ms2_ions",
+   "x_queue_ahead",
+   "x_rank",
+   "x_plan_age",
+   "x_rt_frac"
+  ],
+  "table": "inputs.tsv",
+  "passed_as_log10_of_max_value_1": [
+   "log10_intensity (from intensity)",
+   "id_score",
+   "x_prec_intensity",
+   "x_ms1_plan",
+   "x_ms2_mass_count"
+  ],
+  "missing_value": "NaN; every tree node says where a missing input goes",
+  "precision": "32-bit floats",
+  "detail": "inputs_detail.tsv, INPUTS.md"
+ },
+ "gate": {
+  "rule": "send an MS3 if it has at least one uncovered bond and W >= threshold",
+  "variants": {
+   "w50": {
+    "threshold": 0.5,
+    "what": "W >= 50%"
+   },
+   "w10": {
+    "threshold": 0.835,
+    "what": "the threshold at which 10% of the MS3 of development proteins are sent (W out of fold; E. coli LC runs in the application mode Intact Protein without a live gate), rounded to three decimals"
+   }
+  },
+  "chosen": null
+ },
+ "documents": {
+  "MODEL_CARD.md": "what W predicts, training data, checks, limits",
+  "INPUTS.md": "the 36 inputs",
+  "ENGINE.md": "what the engine needs",
+  "CHANGELOG.md": "changes"
+ },
+ "inputs_from_log": {
+  "what": "the raw inputs rebuilt from the log tables of a run folder; checked against the tables of the fit",
+  "runs": 17,
+  "ms3_compared": 18266,
+  "inputs_that_differ_anywhere": [],
+  "largest_difference_of_w": 0.0,
+  "sha256_of_the_checked_script": "f71d119c0ad46a502aaacba2ad3168a25f96ad63e2df7cdbf7fb25541e94753b"
+ },
+ "check": {
+  "command": "python w_gate.py --selfcheck",
+  "reference_files": [
+   "reference_rows.tsv",
+   "reference_rows_ties.tsv"
+  ],
+  "reference_rows": 500,
+  "ties": {
+   "ms3_where_a_64_bit_reader_differs": 1470,
+   "of": 18266,
+   "largest_difference": 0.14273939853604667,
+   "ms3_with_a_difference_above_1e-6": 1491,
+   "rows_in_reference_rows_ties": 200,
+   "of_those_decisions_that_would_differ": {
+    "w50": 3,
+    "w10": 3
+   }
+  },
+  "readers": {
+   "package_8_against_package_7_largest_difference": 0.0,
+   "against_the_tables_outside_the_development_folds": 1.6788790474508986e-07
+  }
+ },
+ "extends": {
+  "package": "7",
+  "manifest_sha256": "f80131f1f88e4f8a75e471ae7af2f071e79fb74c29fa945d82e4e3cbd19b01dd",
+  "byte_for_byte_from_package_7": [
+   "w_ext_v3.json",
+   "trees.tsv",
+   "inputs.tsv",
+   "reference_rows.tsv"
+  ]
+ },
+ "sha256": {
+  "w_ext_v3.json": "47f0babed8f470e242510765cfc3e49c35dcfce5d035efc149bf025a81ba425b",
+  "trees.tsv": "51ff21412c60b2d0dd83141edadfa69bb8d4840a385c22cc562ec5ff7bb72ffb",
+  "inputs.tsv": "6d63e000fff2ee7152180dac5c2c1d2e81437c9731db7a38c830c795c993af36",
+  "reference_rows.tsv": "45b8dbc1a016b6b46185da3f47f875ececdce66f8e3adab1678636be2bd48473",
+  "reference_rows_ties.tsv": "c117af8db120382921c7d0dab2e14b5ec926542b5a4226af75357677c93df8dc",
+  "inputs_detail.tsv": "4f324fff384f2ae97d18c80391daf2a450818818ecdb6e20ec1e57fba9d00a8c",
+  "w_gate.py": "00509d05e12eee67b2dfd63aabd853f5a9bedc412963dca691baf4d3a27479f6",
+  "inputs_from_log.py": "f71d119c0ad46a502aaacba2ad3168a25f96ad63e2df7cdbf7fb25541e94753b",
+  "MODEL_CARD.md": "8687928972e6a2a4e790d3e1f56246e815f07c9384409f19c1f7716514d1e679",
+  "INPUTS.md": "89d8756c1ca56a7f5ee91c54b95c75c5f026c43146f120c4e831109db4896b12",
+  "ENGINE.md": "fa0c49a21b81fe87e66ad7c60e7840698b99a40acec86722f984b82e8303f3e4",
+  "CHANGELOG.md": "79b0baf732b5dee3f61a49a1d38103b4df797250c0d8a2b4fac18b5caed34b9a",
+  "README.md": "98991cae52e0410ccbd9167ea4c5be0433ff963bbd06ea48dca3f95963493456"
+ },
+ "decisions": "DECISIONS.md D66, D67, D76 of the repository ms3_esm"
+}
