@@ -57,6 +57,26 @@ namespace Flash
         public double[] Tolerances { get; set; } = new double[] { 10, 10 };
     }
 
+    // ADR-0078. precursor_selection.charge_check: the charge of a selected precursor measured from its window's isotope
+    // spacing on the survey. Authored as `true` (this block with its defaults), `false` (null) or the block itself;
+    // MethodConfigSerializer reads the two booleans. Declared above PrecursorSelectionConfig for the CS0579 reason
+    // MonitorMs1Config gives. Defaults mirror Config.h's TargetingConfig.
+    [JsonKey("charge_check")]
+    public class ChargeCheckConfig
+    {
+        [JsonKey("min_score")]
+        [Description("Comb score (0-1) a measured charge needs before it changes the commanded one (ADR-0078).")]
+        public double MinScore { get; set; } = 0.30;
+
+        [JsonKey("max_dz")]
+        [Description("Largest charge change acted on (ADR-0078); a confident larger one is logged as inconsistent and changes nothing.")]
+        public int MaxDz { get; set; } = 3;
+
+        [JsonKey("min_resolvability")]
+        [Description("Isotope spacing over peak width at the anchor charge below which the window is not checked (ADR-0078).")]
+        public double MinResolvability { get; set; } = 2.5;
+    }
+
     /// <summary>
     /// Decision section 1: WHICH intact species do we fragment?
     ///
@@ -126,6 +146,12 @@ namespace Flash
         [JsonKey("log_target_charges")]
         [Description("Inclusion from files.target_logs: \"any\" (default), a reference target is a mass matched at any charge; \"reference\", matched only at a charge the reference acquired it at, and each acquisition uses that charge up for the rest of the run (the behaviour from 2025-07-04 to 2026-10-21).")]
         public string LogTargetCharges { get; set; } = "any";
+
+        // ADR-0078. Null (the default, and an authored false) is off and keeps every committed method's behaviour. An
+        // authored true is the block with its defaults.
+        [JsonKey("charge_check")]
+        [Description("Measure the charge of every selected precursor from the isotope spacing of its isolation window on the survey, before it is acquired (ADR-0078). A confident measurement 1 to max_dz charges away acquires the survey's species at that charge instead, or, under precursor_charges \"single\" or \"separate\" with no such species, the same window with its mass re-read at the measured charge. true, false, or a block with min_score, max_dz and min_resolvability.")]
+        public ChargeCheckConfig ChargeCheck { get; set; }
 
         // --- moved here from selection_strategy.ms1 ---
 
@@ -960,6 +986,7 @@ namespace Flash
         public string charge_selection { get; set; }
         public bool log_target_rt_window { get; set; }
         public string log_target_charges { get; set; }
+        public object charge_check { get; set; }   // ADR-0078: false when off, a JsonChargeCheckConfig when on
         public string rank_by { get; set; }
         public int max_precursors { get; set; }
         public int min_precursor_charge { get; set; }
@@ -1123,6 +1150,14 @@ namespace Flash
     public class JsonWindowScanConfig
     {
         public double margin { get; set; }
+    }
+
+    // precursor_selection.charge_check when on (ADR-0078); off crosses as the boolean false.
+    public class JsonChargeCheckConfig
+    {
+        public double min_score { get; set; }
+        public int max_dz { get; set; }
+        public double min_resolvability { get; set; }
     }
 
     public class JsonCycleTimeConfig

@@ -171,6 +171,15 @@ namespace Flash
                     log_target_rt_window = c.PrecursorSelection.LogTargetRtWindow,
                     // Verbatim, like charge_selection: C++ accepts only "any" and "reference".
                     log_target_charges = c.PrecursorSelection.LogTargetCharges,
+                    // ADR-0078. Always emitted: off crosses as false, which C++ treats as absent; on crosses as the block.
+                    charge_check = c.PrecursorSelection.ChargeCheck == null
+                        ? (object)false
+                        : new JsonChargeCheckConfig
+                        {
+                            min_score = c.PrecursorSelection.ChargeCheck.MinScore,
+                            max_dz = c.PrecursorSelection.ChargeCheck.MaxDz,
+                            min_resolvability = c.PrecursorSelection.ChargeCheck.MinResolvability,
+                        },
                     rank_by = (c.PrecursorSelection.RankBy ?? "qscore").ToLower(),
                     max_precursors = c.PrecursorSelection.MaxPrecursors,
                     min_precursor_charge = c.PrecursorSelection.MinPrecursorCharge,
@@ -713,6 +722,8 @@ namespace Flash
             // targeting: neither key is checked against the targeting mode.
             c.PrecursorSelection.LogTargetRtWindow = false;
             c.PrecursorSelection.LogTargetCharges = "reference";
+            // ADR-0078. Off by default; the reference authors the block with every value off its default.
+            c.PrecursorSelection.ChargeCheck = new ChargeCheckConfig { MinScore = 0.25, MaxDz = 2, MinResolvability = 2.0 };
 
             // ADR-0061. The identification section is null by default; the reference authors it.
             c.Identification = new IdentificationConfig

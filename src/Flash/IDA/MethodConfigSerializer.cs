@@ -545,6 +545,15 @@ namespace Flash
                     "identification.window_scan must be true, false or a block { \"margin\": <Th> } (ADR-0071).");
             }
 
+            // ADR-0078: precursor_selection.charge_check takes the same three shapes, for the same reason.
+            if (targetType == typeof(ChargeCheckConfig) && !(rawValue is Dictionary<string, object>))
+            {
+                if (rawValue is bool)
+                    return (bool)rawValue ? new ChargeCheckConfig() : null;
+                throw new ArgumentException(
+                    "precursor_selection.charge_check must be true, false or a block { \"min_score\", \"max_dz\", \"min_resolvability\" } (ADR-0078).");
+            }
+
             // Nested config class (has [JsonKey] on the class)
             if (targetType.IsClass && !targetType.IsPrimitive
                 && targetType != typeof(string)
