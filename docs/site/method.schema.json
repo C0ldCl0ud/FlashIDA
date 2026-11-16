@@ -167,6 +167,49 @@
             "matched only at a charge the reference acquired it at; each acquisition uses that charge up for the rest of the run, as from 2025-07-04 to 2026-10-21."
           ]
         },
+        "charge_check": {
+          "type": [
+            "object",
+            "boolean"
+          ],
+          "x-type-text": "boolean or object",
+          "additionalProperties": false,
+          "properties": {
+            "min_score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Comb score (0 to 1) the measured charge needs before it changes anything. Below it the precursor is acquired as selected and logged as `unverified_low_score`.",
+              "default": 0.3,
+              "x-adr": [
+                "0078"
+              ]
+            },
+            "max_dz": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Largest charge change acted on. A confident measurement further from the selected charge changes nothing and is logged as `inconsistent`.",
+              "default": 3,
+              "x-adr": [
+                "0078"
+              ]
+            },
+            "min_resolvability": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Isotope spacing over peak width at the selected charge, (1.00235 / z) / (m/z / R(m/z)) with R from the survey's resolution, below which the window is not checked and is logged as `unverified_resolution`. At 120k a 17 kDa protein clears 2.5 from about z 12; a 29 kDa one needs 240k.",
+              "default": 2.5,
+              "x-adr": [
+                "0078"
+              ]
+            }
+          },
+          "description": "Check the charge of every selected precursor before it is acquired. `true`, `false`, or a block (its presence switches it on). The survey deconvolution sometimes gives a precursor a charge one or two off, which puts its mass about M/z away. The check reads the charge from the isotope spacing of the precursor's isolation window on the same survey. When it measures another charge confidently (score at least `min_score`, 1 to `max_dz` charges away), the precursor is acquired as the survey's species at that charge instead, with the window kept on the measured peak (`swapped`). If the survey lists no such species, then under `precursor_charges` `single` or `separate` the same window is acquired with its charge and mass re-read at the measured charge (`remeasured`), and otherwise as selected (`unverified_no_species`). The exclusion and the acquisition memory then hold the measured species, so it is not selected again under a wrong mass. A species already excluded is not acquired. A row of the inclusion list that names charges allows only a named charge. `scan_commands.tsv` logs the outcome of every checked command (`charge_check_status` and six more columns) and `events.log` a `[CHARGE-CHECK]` line per change.",
+          "default": false,
+          "x-adr": [
+            "0078"
+          ]
+        },
         "tie_threshold": {
           "type": "number",
           "description": "Qscore difference below which two candidates count as tied and are ordered by their inclusion row's priority, higher first. Read only under `targeting: inclusion` when an inclusion list is loaded.",
