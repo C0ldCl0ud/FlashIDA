@@ -48,7 +48,8 @@ namespace Flash.IDA
     /// Layout: 1248 (existing) + 8 (dequeue_timestamp_ms) + 8 (microscans+pad3)
     ///       + 24 (rf_lens+source_cid+source_cid_scaling) + 64 (data_type+scan_rate)
     ///       + 4 (parent_scan_id) + 84 (stage-1 scoring) + 8 (window_snr) + 4 (faims_enabled)
-    ///       + 8 (stage0/stage1_notch_count) + 588 (reserved) = 2048.
+    ///       + 8 (stage0/stage1_notch_count) + 4 (pad4) + 432 (notches @1464)
+    ///       + 8 (witness_probability @1896, ADR-0076) + 144 (reserved @1904) = 2048.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
     public struct ScanCommand
@@ -130,7 +131,10 @@ namespace Flash.IDA
         // [k * MaxNotchesPerStage, + MaxNotchesPerStage) -- see ScanFactory.NotchesForStage.
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 18)]
         public Notch[] Notches;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 152)]
+        // @1896 ADR-0076: the W a `model: w` yield gate last decided this MS3 at; -1 = no W gate scored it.
+        // Engine-written and logged by the engine; C# only carries it.
+        public double WitnessProbability;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 144)]
         public byte[] Reserved;
     }
 

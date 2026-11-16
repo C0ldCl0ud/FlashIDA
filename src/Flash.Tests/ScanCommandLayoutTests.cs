@@ -89,9 +89,9 @@ namespace Flash.Tests
             Assert.AreEqual(1424, (int)Marshal.OffsetOf<ScanCommand>("PrecursorIntensityS1"), "PrecursorIntensityS1 offset");
             Assert.AreEqual(1432, (int)Marshal.OffsetOf<ScanCommand>("PeakgroupIntensityS1"), "PeakgroupIntensityS1 offset");
             Assert.AreEqual(1440, (int)Marshal.OffsetOf<ScanCommand>("WindowSnr"), "WindowSnr offset");
-            // Carved out of Reserved, which has now moved 1448 -> 1896 and shrunk 600 -> 152 across
-            // three changes (FaimsEnabled, ADR-0012; the two notch counts, ADR-0017; the notch array,
-            // ADR-0019). Every offset above is unchanged and the struct stays 2048 bytes -- that is
+            // Carved out of Reserved, which has now moved 1448 -> 1904 and shrunk 600 -> 144 across
+            // four changes (FaimsEnabled, ADR-0012; the two notch counts, ADR-0017; the notch array,
+            // ADR-0019; WitnessProbability, ADR-0076). Every offset above is unchanged and the struct stays 2048 bytes -- that is
             // why new bridge fields are consumed from the tail rather than appended.
             Assert.AreEqual(1448, (int)Marshal.OffsetOf<ScanCommand>("FaimsEnabled"), "FaimsEnabled offset");
             Assert.AreEqual(1452, (int)Marshal.OffsetOf<ScanCommand>("Stage0NotchCount"), "Stage0NotchCount offset");
@@ -100,7 +100,8 @@ namespace Flash.Tests
             // implicit would put the C++ array at 1464 and give the mirror nothing to line up against.
             Assert.AreEqual(1460, (int)Marshal.OffsetOf<ScanCommand>("Pad4"), "Pad4 offset");
             Assert.AreEqual(1464, (int)Marshal.OffsetOf<ScanCommand>("Notches"), "Notches offset");
-            Assert.AreEqual(1896, (int)Marshal.OffsetOf<ScanCommand>("Reserved"), "Reserved offset");
+            Assert.AreEqual(1896, (int)Marshal.OffsetOf<ScanCommand>("WitnessProbability"), "WitnessProbability offset");
+            Assert.AreEqual(1904, (int)Marshal.OffsetOf<ScanCommand>("Reserved"), "Reserved offset");
             Assert.AreEqual(24, Marshal.SizeOf<Notch>(), "Notch must be 24 bytes");
             Assert.AreEqual(432, 18 * Marshal.SizeOf<Notch>(), "Notches block must be 432 bytes");
 
@@ -162,14 +163,14 @@ namespace Flash.Tests
             Assert.IsNotNull(parentScanIdAttr, "ParentScanId should have MarshalAs attribute");
             Assert.AreEqual(4, parentScanIdAttr.SizeConst, "ParentScanId SizeConst");
 
-            // ScanCommand.Reserved should be SizeConst=152 (after carving 84 B stage-1 scoring
+            // ScanCommand.Reserved should be SizeConst=144 (after carving 84 B stage-1 scoring
             // + 8 B window_snr + 4 B faims_enabled + 8 B the two notch counts + 4 B pad4
-            // + 432 B notches[18]). Every carve shrinks Reserved by exactly the bytes it takes,
+            // + 432 B notches[18] + 8 B witness_probability). Every carve shrinks Reserved by exactly the bytes it takes,
             // which is what keeps the struct at 2048 and every prior offset fixed.
             var reservedAttr = typeof(ScanCommand).GetField("Reserved")
                 .GetCustomAttribute<MarshalAsAttribute>();
             Assert.IsNotNull(reservedAttr, "Reserved should have MarshalAs attribute");
-            Assert.AreEqual(152, reservedAttr.SizeConst, "Reserved SizeConst");
+            Assert.AreEqual(144, reservedAttr.SizeConst, "Reserved SizeConst");
 
             // ScanCommand.Notches should be SizeConst=18 (two per-stage blocks of 9).
             var notchesAttr = typeof(ScanCommand).GetField("Notches")
