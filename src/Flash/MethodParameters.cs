@@ -406,7 +406,8 @@ namespace Flash
                 mass_ratio = g.MassRatio,
                 fragment_iso_cos = g.FragmentIsoCos,
                 rank_by = g.RankBy,
-                model = g.Model
+                model = g.Model,
+                apply = g.Model == "w" ? (bool?)g.Apply : null   // ADR-0079
             };
         }
 

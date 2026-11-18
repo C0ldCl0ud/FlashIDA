@@ -247,13 +247,18 @@ namespace Flash
     [JsonKey("yield_gate")]
     public class YieldGateConfig
     {
-        // ADR-0076. Always emitted as a real string; the C++ side refuses anything but the two values.
+        // ADR-0076, ADR-0079. Always emitted as a real string; the C++ side refuses anything but the two values.
         [JsonKey("model")]
-        [Description("What the gate admits by: bond_yield (the default: the predicted bond yield E of the coefficients below, threshold in expected bonds) or w (the witness probability W, the chance the MS3 shows at least one bond of its fragment, from the trees in share/OpenMS/FLASHIDA/ms3_w_gate.json; threshold a probability in (0, 1) that must be set; the coefficients are then unused; needs global.duration and refuses multiplexed precursor or fragment charges).")]
+        [Description("What the gate admits by: bond_yield (the default: the predicted bond yield E of the coefficients below, threshold in expected bonds) or w (the witness probability W, the chance the MS3 shows at least one bond of its target fragment, from the trees in share/OpenMS/FLASHIDA/ms3_w_gate.json, computed once when the MS3 is planned; the plan is ranked by W and takes the targets with an uncovered bond and W >= threshold; threshold a probability in (0, 1) that must be set; the coefficients are then unused; characterization block only, with single fragment charges, an HCD MS2 and a CID MS3, under the fragments, coverage or ambiguity mode).")]
         public string Model { get; set; } = "bond_yield";
 
+        // ADR-0079. Model w only: written as null under bond_yield, which the C++ side reads as absent.
+        [JsonKey("apply")]
+        [Description("Under model w: true (the default) sends the plan the gate decides; false is the shadow mode -- W is computed and every decision logged in ms3_gate.tsv (applied 0), and the plan is sent as without the gate. Refused under bond_yield.")]
+        public bool Apply { get; set; } = true;
+
         [JsonKey("threshold")]
-        [Description("Under model bond_yield: admit an MS3 only if its predicted bond yield E = p x (L - 1), the bonds inside its target fragment it is expected to witness, is at least this many (> 0). 1 aims at the bonds MS3 witnesses; about 6 at a run's total coverage (an MS3 must beat the MS2 its time displaces). Under model w: the lowest witness probability W admitted, in (0, 1), required (the model's package names 0.5 and 0.835 and chooses neither).")]
+        [Description("Under model bond_yield: admit an MS3 only if its predicted bond yield E = p x (L - 1), the bonds inside its target fragment it is expected to witness, is at least this many (> 0). 1 aims at the bonds MS3 witnesses; about 6 at a run's total coverage (an MS3 must beat the MS2 its time displaces). Under model w: the lowest witness probability W sent, in (0, 1), required (the model's package tests 0.3, 0.5 and 0.8 and chooses none).")]
         public double Threshold { get; set; } = 1.0;
 
         [JsonKey("intercept")]
@@ -1264,6 +1269,7 @@ namespace Flash
         public double fragment_iso_cos { get; set; }
         public string rank_by { get; set; }
         public string model { get; set; }   // ADR-0076
+        public bool? apply { get; set; }    // ADR-0079: model w only, null otherwise
     }
 
     public class JsonReferenceConfig

@@ -750,10 +750,22 @@
                     "bond_yield",
                     "w"
                   ],
-                  "description": "What the gate admits by. `bond_yield`: the predicted bond yield E of the coefficients below, `threshold` in expected bonds. `w`: the witness probability W, the chance that the MS3 shows at least one bond of its target fragment, from gradient-boosted trees over 36 values known when the MS3 is planned (the ms3_esm package's w_ext_v3, shipped as share/OpenMS/FLASHIDA/ms3_w_gate.json; fitted on E. coli LC runs in the Intact Protein mode, b and y fragments of an HCD MS2). Under `w`: `threshold` is a probability in (0, 1) and must be set; the coefficients are read and unused; `global.duration` must be set (the run length is one of the inputs); multiplexed precursor or fragment charges are refused; `order` must be `ranked`, since the plan is sent in the order W ranked it; the queued MS3 are scored again at every MS1 and withdrawn if W falls below the threshold. W is logged in `scan_commands.tsv` (`witness_probability`), every scoring with its inputs in `events.log` (`[MS3-W]`).",
+                  "description": "What the gate admits by. `bond_yield`: the predicted bond yield E of the coefficients below, `threshold` in expected bonds. `w`: the witness probability W, the chance that the MS3 shows at least one bond of its target fragment, from gradient-boosted trees over 38 inputs (30 values the logs print when the MS3 is planned and 8 features of the precursor's elution in the surveys of the last 180 s; the ms3_esm package 17's w_v13.json, shipped as share/OpenMS/FLASHIDA/ms3_w_gate.json and checked by its SHA-256; fitted on b and y fragments of an HCD MS2 and a CID MS3 in E. coli and Caco-2 LC runs). Under `w`: W is computed once, when the plan is made, for every candidate; the plan is ranked by W and takes, from the top, the targets with an uncovered bond and W >= `threshold` until `max_targets`; nothing is re-scored. `threshold` is a probability in (0, 1) and must be set; the coefficients are read and unused. Characterization block only: refused in `quantification.ms3_yield_gate`, and with multiplexed precursor charges, `fragment_charges` other than `single`, the `exhaustive` and `discriminating` modes, an MS2 other than HCD, an MS3 other than CID, or an `order` other than `ranked`. Every candidate is logged in `ms3_gate.tsv` with its 38 inputs, W and the decision; a sent MS3's W in `scan_commands.tsv` (`witness_probability`).",
                   "default": "bond_yield",
                   "x-adr": [
-                    "0076"
+                    "0076",
+                    "0079"
+                  ]
+                },
+                "apply": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ],
+                  "description": "Under model `w`: `true` (the default) sends the plan the gate decides; `false` is the shadow mode: W is computed and every decision logged in `ms3_gate.tsv` (`applied` 0), and the plan is sent as without the gate. A key of model `w` only.",
+                  "default": true,
+                  "x-adr": [
+                    "0079"
                   ]
                 },
                 "threshold": {
@@ -917,10 +929,22 @@
                 "bond_yield",
                 "w"
               ],
-              "description": "What the gate admits by. `bond_yield`: the predicted bond yield E of the coefficients below, `threshold` in expected bonds. `w`: the witness probability W, the chance that the MS3 shows at least one bond of its target fragment, from gradient-boosted trees over 36 values known when the MS3 is planned (the ms3_esm package's w_ext_v3, shipped as share/OpenMS/FLASHIDA/ms3_w_gate.json; fitted on E. coli LC runs in the Intact Protein mode, b and y fragments of an HCD MS2). Under `w`: `threshold` is a probability in (0, 1) and must be set; the coefficients are read and unused; `global.duration` must be set (the run length is one of the inputs); multiplexed precursor or fragment charges are refused; the queued MS3 are scored again at every MS1 and withdrawn if W falls below the threshold. W is logged in `scan_commands.tsv` (`witness_probability`), every scoring with its inputs in `events.log` (`[MS3-W]`).",
+              "description": "What the gate admits by. `bond_yield`: the predicted bond yield E of the coefficients below, `threshold` in expected bonds. `w`: the witness probability W, the chance that the MS3 shows at least one bond of its target fragment, from gradient-boosted trees over 38 inputs (30 values the logs print when the MS3 is planned and 8 features of the precursor's elution in the surveys of the last 180 s; the ms3_esm package 17's w_v13.json, shipped as share/OpenMS/FLASHIDA/ms3_w_gate.json and checked by its SHA-256; fitted on b and y fragments of an HCD MS2 and a CID MS3 in E. coli and Caco-2 LC runs). Under `w`: W is computed once, when the plan is made, for every candidate; the plan is ranked by W and takes, from the top, the targets with an uncovered bond and W >= `threshold` until `max_targets`; nothing is re-scored. `threshold` is a probability in (0, 1) and must be set; the coefficients are read and unused. Characterization block only: refused in `quantification.ms3_yield_gate`, and with multiplexed precursor charges, `fragment_charges` other than `single`, the `exhaustive` and `discriminating` modes, an MS2 other than HCD, an MS3 other than CID, or an `order` other than `ranked`. Every candidate is logged in `ms3_gate.tsv` with its 38 inputs, W and the decision; a sent MS3's W in `scan_commands.tsv` (`witness_probability`).",
               "default": "bond_yield",
               "x-adr": [
-                "0076"
+                "0076",
+                "0079"
+              ]
+            },
+            "apply": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "Under model `w`: `true` (the default) sends the plan the gate decides; `false` is the shadow mode: W is computed and every decision logged in `ms3_gate.tsv` (`applied` 0), and the plan is sent as without the gate. A key of model `w` only.",
+              "default": true,
+              "x-adr": [
+                "0079"
               ]
             },
             "threshold": {
