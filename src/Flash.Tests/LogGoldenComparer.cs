@@ -39,9 +39,11 @@ namespace Flash.Tests
         // written only when runtime.pooled_identification_log_path is non-empty (the harness sets it
         // to caseDir/PooledName, so this basename is what the engine writes).
         public const string PooledName = "pooled_identification.tsv";
+        // ADR-0079: the 6th stream, the W gate's rows (one per MS3 candidate of a W-gated plan); header only otherwise.
+        public const string Ms3GateName = "ms3_gate.tsv";
 
         public static readonly string[] FileNames =
-            { IdaLogName, CommandsName, ResultsName, IdentificationName, PooledName };
+            { IdaLogName, CommandsName, ResultsName, IdentificationName, PooledName, Ms3GateName };
 
         // ID-bearing columns per TSV, resolved BY HEADER NAME (order-agnostic to the live column layout).
         // The NAME LISTS are visited in a FIXED logical order so BuildIdMap assigns T<n> labels in the same
@@ -83,6 +85,26 @@ namespace Flash.Tests
             { "search_ms", "<DUR>" }
         };
         private static readonly Dictionary<string, string> NoMaskNames = new Dictionary<string, string>();
+        // ADR-0079: ms3_gate.tsv's id cells, and its wall-clock cells: the engine clock's stamps and the evaluation time,
+        // and the peak features that are times since a survey (milliseconds in a harness drive, whose pacing jitters).
+        private static readonly string[] Ms3GateIdColNames =
+            { "parent_tracking_id", "tracking_id", "survey_tracking_id", "buffer_last_survey_id", "last_ms1_tracking_id" };
+        private static readonly Dictionary<string, string> Ms3GateMaskNames = new Dictionary<string, string>
+        {
+            { "plan_ts", "<TS>" },
+            { "eval_us", "<DUR>" },
+            { "buffer_first_resolve_ts", "<TS>" },
+            { "buffer_last_resolve_ts", "<TS>" },
+            { "last_ms1_resolve_ts", "<TS>" },
+            { "pk3_since_start", "<DUR>" },
+            { "pk3_since_apex", "<DUR>" },
+            { "pk3_since_last", "<DUR>" },
+            { "pk3_trend", "<DUR>" },
+            { "in_pk3_since_start", "<DUR>" },
+            { "in_pk3_since_apex", "<DUR>" },
+            { "in_pk3_since_last", "<DUR>" },
+            { "in_pk3_trend", "<DUR>" }
+        };
 
         /// <summary>
         /// Build tracking_id -> T&lt;n&gt; by first appearance across the three TSVs in fixed order
@@ -104,6 +126,8 @@ namespace Flash.Tests
             AddIdsFromTsv(Path.Combine(caseDir, ResultsName), ResIdColNames, ResChildColName, Add);
             AddIdsFromTsv(Path.Combine(caseDir, IdentificationName), IdfIdColNames, null, Add);
             AddIdsFromPooled(Path.Combine(caseDir, PooledName), Add);
+            // ADR-0079: last, so every label of the five older streams keeps its number.
+            AddIdsFromTsv(Path.Combine(caseDir, Ms3GateName), Ms3GateIdColNames, null, Add);
 
             return map;
         }
@@ -154,6 +178,7 @@ namespace Flash.Tests
             if (fileName == ResultsName) return NormalizeTsv(path, ids, ResIdColNames, ResChildColName, ResMaskNames, null);
             if (fileName == IdentificationName) return NormalizeTsv(path, ids, IdfIdColNames, null, NoMaskNames, null);
             if (fileName == PooledName) return NormalizePooled(path, ids);
+            if (fileName == Ms3GateName) return NormalizeTsv(path, ids, Ms3GateIdColNames, null, Ms3GateMaskNames, CmdDescriptionColName);
             if (fileName == IdaLogName) return NormalizeIdaLog(path);
             throw new ArgumentException("unknown log file: " + fileName);
         }

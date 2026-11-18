@@ -608,7 +608,8 @@ namespace Flash.Tests
             Assert.AreEqual(1.529105, Convert.ToDouble(yg["fragment_intensity"]), 1e-12);
             Assert.AreEqual("yield", yg["rank_by"]);
             Assert.AreEqual("bond_yield", yg["model"], "ADR-0076: the default model crosses as a real string");
-            Assert.AreEqual(9, yg.Count, "all nine keys cross whenever the block does");
+            Assert.AreEqual(10, yg.Count, "all ten keys cross whenever the block does");
+            Assert.IsNull(yg["apply"], "ADR-0079: apply is a key of model w only, null (absent to the C++ side) under bond_yield");
 
             // ADR-0076: an authored model "w" round-trips and crosses.
             mp.Config.Identification.Characterization.YieldGate.Model = "w";
@@ -617,6 +618,15 @@ namespace Flash.Tests
             parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(mp.ToCppJson());
             cz = (Dictionary<string, object>)((Dictionary<string, object>)parsed["identification"])["characterization"];
             Assert.AreEqual("w", ((Dictionary<string, object>)cz["yield_gate"])["model"]);
+            Assert.AreEqual(true, ((Dictionary<string, object>)cz["yield_gate"])["apply"], "ADR-0079: apply crosses under w, default true");
+            // ADR-0079: the shadow mode round-trips and crosses.
+            mp.Config.Identification.Characterization.YieldGate.Apply = false;
+            back = MethodConfigSerializer.Deserialize(MethodConfigSerializer.Serialize(mp.Config));
+            Assert.AreEqual(false, back.Identification.Characterization.YieldGate.Apply);
+            parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(mp.ToCppJson());
+            cz = (Dictionary<string, object>)((Dictionary<string, object>)parsed["identification"])["characterization"];
+            Assert.AreEqual(false, ((Dictionary<string, object>)cz["yield_gate"])["apply"]);
+            mp.Config.Identification.Characterization.YieldGate.Apply = true;
             mp.Config.Identification.Characterization.YieldGate.Model = "bond_yield";
 
             // An authored rank_by and order round-trip and cross.
