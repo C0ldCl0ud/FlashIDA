@@ -781,12 +781,13 @@ namespace Flash.Tests
                     "ms1_cytc.txt", "ms2_cytc_fresh_scan57.txt", feedMs3: true, ms3Map: ms3Map, minMs2Commands: 1);
         }
 
-        // ADR-0076: the W gate. method_ms3_cytc_fragments_w_gate.json is method_ms3_cytc_fragments_yield_gate.json with
-        // the gate's model switched to w at a witness probability of 0.941: the shipped model (share/OpenMS/FLASHIDA/
-        // ms3_w_gate.json) scores every candidate, walked by W at the plan's running rank. Ungated, this recipe's 75
-        // planned MS3 sit at W 0.910-0.962; 0.941 lies in a 0.0024 gap (0.93991-0.94231) and refuses 10 of them (four
-        // plans lose targets; no candidate behind them reaches 0.941, so none is promoted): 65 MS3 against 75. The row's
-        // witness_probability is the decision value; predicted_bond_yield is -1.
+        // ADR-0079: the W gate of package 17. method_ms3_cytc_fragments_w_gate.json is
+        // method_ms3_cytc_fragments_yield_gate.json with the gate's model switched to w, rank_by intensity and a threshold of
+        // 1e-6: the shipped model (share/OpenMS/FLASHIDA/ms3_w_gate.json) scores every candidate once at its plan and every
+        // one passes, so the plan is the planner's own and reproducible. W itself is not: four of its 38 inputs are times
+        // since a survey, set here by the drive's pacing (cytC W 0.58-0.97, every row its own value), so the comparer masks
+        // W, the rank by W and those times; contract check C (check_gate_log.py) rebuilds every logged W and decision from
+        // this run's own logs on every run. Every candidate is a row of ms3_gate.tsv.
         [Test, Category("Tier2")]
         public void Golden_MS3_FragmentsObjective_WGate_CytC()
         {

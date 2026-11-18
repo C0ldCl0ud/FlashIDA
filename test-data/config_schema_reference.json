@@ -116,7 +116,8 @@
         "mass_ratio": -2.75,
         "fragment_iso_cos": 21.5,
         "rank_by": "intensity",
-        "model": "bond_yield"
+        "model": "bond_yield",
+        "apply": null
       },
       "order": "random",
       "exploration": {
@@ -157,7 +158,8 @@
       "mass_ratio": -2.5,
       "fragment_iso_cos": 20.5,
       "rank_by": "intensity",
-      "model": "bond_yield"
+      "model": "bond_yield",
+      "apply": null
     },
     "labelling": "tmt10plex",
     "reporter_mz_tol": 0.0031,

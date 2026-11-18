@@ -69,7 +69,15 @@ namespace Flash.Tests
 
         // Volatile wall-clock columns -> placeholder, keyed BY NAME.
         private static readonly Dictionary<string, string> CmdMaskNames =
-            new Dictionary<string, string> { { "enqueue_ts", "<TS>" } };
+            new Dictionary<string, string>
+            {
+                { "enqueue_ts", "<TS>" },
+                // ADR-0079: W reads the peak features' times since a survey, which a harness drive's pacing sets, so a W
+                // is masked; an unscored command's -1 is kept (every golden without a W gate is unchanged).
+                { "witness_probability", UnlessUnscored + "<W>" }
+            };
+        /// A mask value with this prefix masks a cell unless it is "-1" (the unscored sentinel), which is kept.
+        private const string UnlessUnscored = "unless-1:";
         private static readonly Dictionary<string, string> ResMaskNames = new Dictionary<string, string>
         {
             { "resolve_ts", "<TS>" },
@@ -103,7 +111,11 @@ namespace Flash.Tests
             { "in_pk3_since_start", "<DUR>" },
             { "in_pk3_since_apex", "<DUR>" },
             { "in_pk3_since_last", "<DUR>" },
-            { "in_pk3_trend", "<DUR>" }
+            { "in_pk3_trend", "<DUR>" },
+            // W, and the ranking it sets, follow those times: masked (check C rebuilds every W from the run's own logs).
+            { "w", "<W>" },
+            { "target_w", "<W>" },
+            { "w_rank", "<W>" }
         };
 
         /// <summary>
@@ -209,7 +221,12 @@ namespace Flash.Tests
                 // the deterministic marker + adaptive-precision mass/charge remainder verbatim.
                 if (descCol >= 0 && descCol < cols.Length)
                     cols[descCol] = RelabelDescriptionPrefix(cols[descCol], ids);
-                foreach (var kv in mask) if (kv.Key < cols.Length) cols[kv.Key] = kv.Value;
+                foreach (var kv in mask)
+                {
+                    if (kv.Key >= cols.Length) continue;
+                    if (!kv.Value.StartsWith(UnlessUnscored, StringComparison.Ordinal)) cols[kv.Key] = kv.Value;
+                    else if (cols[kv.Key] != "-1") cols[kv.Key] = kv.Value.Substring(UnlessUnscored.Length);
+                }
                 sb.Append(string.Join("\t", cols)).Append('\n');
             }
             return sb.ToString();

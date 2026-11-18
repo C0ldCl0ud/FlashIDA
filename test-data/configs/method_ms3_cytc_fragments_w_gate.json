@@ -64,7 +64,8 @@
       "max_targets": 3,
       "yield_gate": {
         "model": "w",
-        "threshold": 0.941
+        "threshold": 0.000001,
+        "rank_by": "intensity"
       }
     }
   },
