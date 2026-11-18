@@ -1257,7 +1257,7 @@ namespace Flash
         public JsonExplorationBlockConfig exploration { get; set; }
     }
 
-    // ADR-0069. Emit DTO for YieldGateConfig; all nine keys written whenever the block is (model: ADR-0076).
+    // ADR-0069. Emit DTO for YieldGateConfig; all ten keys written whenever the block is (model: ADR-0076; apply: ADR-0079).
     public class JsonYieldGateConfig
     {
         public double threshold { get; set; }

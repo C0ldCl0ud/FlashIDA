@@ -252,7 +252,7 @@ test paths — `IdleSurveySentinelTests` (C#) ∥
     engine's log and still prints the engine's `7;0`: for these three columns the logged value of an
     unused stage is not the sent one, and `LogGoldenTests`' sent-vs-logged cross-check asserts the
     fill there.
-    ⚠️ This hop is **invisible to every golden**: the five log streams are written by the C++
+    ⚠️ This hop is **invisible to every golden**: the six log streams are written by the C++
     `IdaLogger`, so a defect between the `ScanCommand` struct and the `Values` dictionary can only be
     caught by a `ScanFactoryTests`-style assertion on the built scan.
   - **`FillParameters` is `protected`, and `MockScanFactory` calls it.** It used to be `private` with a
@@ -302,7 +302,7 @@ test paths — `IdleSurveySentinelTests` (C#) ∥
     directly. `Complete()`/`WaitForCompletion()` are called only from tests: production still never
     drains the pipeline and never disposes the wrapper (`DisposeFLASHIda` runs on the finalizer, if
     ever). **Both omissions are now deliberate rather than incidental** (ADR-0041): every one of the
-    engine's five streams `.flush()`es per row and `FLASHIda::~FLASHIda()` is `= default`, so there
+    engine's six streams `.flush()`es per row and `FLASHIda::~FLASHIda()` is `= default`, so there
     is nothing to lose by exiting and nothing for a join to wait for — and because teardown disposes
     nothing, there is no use-after-free for a pipeline join to prevent either.
     Shutdown is `RequestStop(reason)`, one-shot, returning whether **this** call latched. It records
@@ -581,7 +581,7 @@ compares the single largest fragment with the single smallest.
   `IDALog.log` therefore ships as a 0-byte file every run.
   **Both appender `<file>` values are overwritten at startup** by `Flash.Main` with absolute paths
   inside the run folder that `LogPathResolver.Compose` built, so these two files sit alongside the
-  engine's five streams under one shared timestamp. Two details that were live defects and are now
+  engine's six streams under one shared timestamp. Two details that were live defects and are now
   load-bearing: the `type="log4net.Util.PatternString"` attribute is **gone** (a `%` in an injected
   literal path is a conversion specifier, dropped silently), and `appendToFile=false` is now
   **explicit on both** — it was absent on `IDAFile`, i.e. log4net's default of `true`, so IDALog

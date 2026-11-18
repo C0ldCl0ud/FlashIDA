@@ -1475,7 +1475,7 @@
       "properties": {
         "log_dir": {
           "type": "string",
-          "description": "Base folder for run folders. Each run creates `<log_dir>/<rawname>_<timestamp>/`, or `<log_dir>/<timestamp>/` without `-r`, and writes all seven logs there: `ida.log`, `scan_commands.tsv`, `scan_results.tsv`, `identification.tsv`, `pooled_identification.tsv`, `FlashLog.log` and `IDALog.log`, plus a verbatim copy of the method file named `method.json`. Empty means the process working directory, and a relative path resolves against it. A second run in the same second gets a `_2` suffix rather than sharing a folder.",
+          "description": "Base folder for run folders. Each run creates `<log_dir>/<rawname>_<timestamp>/`, or `<log_dir>/<timestamp>/` without `-r`, and writes all eight logs there: `ida.log`, `scan_commands.tsv`, `scan_results.tsv`, `identification.tsv`, `pooled_identification.tsv`, `ms3_gate.tsv` (the W gate's candidates, header only without one), `FlashLog.log` and `IDALog.log`, plus a verbatim copy of the method file named `method.json`. Empty means the process working directory, and a relative path resolves against it. A second run in the same second gets a `_2` suffix rather than sharing a folder.",
           "default": "",
           "x-adr": [
             "0015"
