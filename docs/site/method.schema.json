@@ -913,10 +913,20 @@
         "ms3_targets": {
           "type": "integer",
           "minimum": 1,
-          "description": "How many quantification MS3s one identification buys under `scan: ms3` or `both`: the most intense eligible labelled fragments, one MS3 each, sent before any characterization MS3 of the same scan. Inert under `scan: ms2`.",
+          "description": "How many quantification MS3s one identification buys under `scan: ms3` or `both`: the most intense eligible labelled fragments, one MS3 each (each the anchor of its MS3 when `sps_windows` is above 1), sent before any characterization MS3 of the same scan. Inert under `scan: ms2`.",
           "default": 1,
           "x-adr": [
             "0064"
+          ]
+        },
+        "sps_windows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Stage-1 isolation windows of every quantification MS3, its anchor included, under `scan: ms3` or `both` (synchronous precursor selection). The anchor is the fragment `ms3_targets` buys; the other windows go to the strongest labelled fragment peaks (any matched fragment with a cysteine, every observed charge state a peak of its own) that no MS3 of the same identification isolates yet, whose own peak is above half of its window's signal in the identification scan, that `ms3_yield_gate` admits when it is set, and whose window overlaps none already chosen. All windows share one fill, so their reporters add up. 1 is one fragment peak per MS3; 10 is the instrument's limit (the anchor and nine notches). Inert under `scan: ms2`.",
+          "default": 1,
+          "x-adr": [
+            "0080"
           ]
         },
         "ms3_yield_gate": {
