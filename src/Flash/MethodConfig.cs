@@ -310,6 +310,13 @@ namespace Flash
             + "fragments). Read under scan ms3 and both")]
         public int Ms3Targets { get; set; } = 1;
 
+        // ADR-0080. Always emitted, like ms3_targets; the C++ reader refuses anything outside 1-10.
+        [JsonKey("sps_windows")]
+        [Description("Stage-1 windows of every quantification MS3, its anchor included (1-10): the anchor is the "
+            + "fragment ms3_targets would buy, the other windows the strongest unused labelled fragment peaks whose "
+            + "windows do not overlap. 1 = one fragment peak per MS3. Read under scan ms3 and both")]
+        public int SpsWindows { get; set; } = 1;
+
         // ADR-0069. Null = absent = no yield gate on the quantification MS3.
         [JsonKey("ms3_yield_gate")]
         [Description("The quantification MS3's own yield gate (ADR-0069): present, a labelled fragment is bought only at a charge whose predicted bond yield reaches its threshold, and a refused fragment hands its place on. Its own coefficients, because these MS3 use ms_settings.ms3_quant. Absent: no gate. Read under scan ms3 and both")]
@@ -1034,6 +1041,7 @@ namespace Flash
         // ADR-0064. Always emitted as a real string, like identify.
         public string scan { get; set; }
         public int ms3_targets { get; set; }
+        public int sps_windows { get; set; }                       // ADR-0080
         public JsonYieldGateConfig ms3_yield_gate { get; set; }   // ADR-0069; null when unauthored
         public string labelling { get; set; }
         public double reporter_mz_tol { get; set; }

@@ -149,6 +149,7 @@
     "enabled": false,
     "scan": "both",
     "ms3_targets": 2,
+    "sps_windows": 3,
     "ms3_yield_gate": {
       "threshold": 0.5,
       "intercept": -30.5,

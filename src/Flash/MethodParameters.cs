@@ -192,6 +192,7 @@ namespace Flash
                     enabled = c.Quantification.Active,
                     scan = c.Quantification.Scan,                 // ADR-0064
                     ms3_targets = c.Quantification.Ms3Targets,
+                    sps_windows = c.Quantification.SpsWindows,    // ADR-0080
                     ms3_yield_gate = ToJsonYieldGate(c.Quantification.Ms3YieldGate),   // ADR-0069
                     labelling = c.Quantification.Labelling,
                     reporter_mz_tol = c.Quantification.ReporterMZTol,
@@ -786,6 +787,7 @@ namespace Flash
             // `if (enabled)` with every other quant rule).
             c.Quantification.Scan = "both";                    // non-default: ms2
             c.Quantification.Ms3Targets = 2;                   // non-default: 1
+            c.Quantification.SpsWindows = 3;                   // ADR-0080, non-default: 1
             // ADR-0069, every key non-default (and different from the characterization gate's below), so a dropped or
             // crossed key is detectable. Legal with Active false: the inert-key warning needs quantification enabled.
             c.Quantification.Ms3YieldGate = new YieldGateConfig
