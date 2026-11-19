@@ -435,11 +435,13 @@ namespace Flash.Tests
             var mp = LoadJsonMethod("method_quant.json");
             Assert.AreEqual("ms2", mp.Config.Quantification.Scan);
             Assert.AreEqual(1, mp.Config.Quantification.Ms3Targets);
+            Assert.AreEqual(1, mp.Config.Quantification.SpsWindows);   // ADR-0080
             Assert.IsFalse(mp.Config.MsSettings.MS3Quant.HasValue, "method_quant.json authors no ms3_quant");
             var parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(mp.ToCppJson());
             var quant = (Dictionary<string, object>)parsed["quantification"];
             Assert.AreEqual("ms2", quant["scan"]);
             Assert.AreEqual(1, Convert.ToInt32(quant["ms3_targets"]));
+            Assert.AreEqual(1, Convert.ToInt32(quant["sps_windows"]));   // ADR-0080: always emitted
             var ms = (Dictionary<string, object>)parsed["ms_settings"];
             Assert.IsTrue(!ms.ContainsKey("ms3_quant") || ms["ms3_quant"] == null, "an unauthored ms3_quant must not be emitted");
 
@@ -451,14 +453,17 @@ namespace Flash.Tests
 
             authored.Config.Quantification.Scan = "both";
             authored.Config.Quantification.Ms3Targets = 3;
+            authored.Config.Quantification.SpsWindows = 4;   // ADR-0080
             var back = MethodConfigSerializer.Deserialize(MethodConfigSerializer.Serialize(authored.Config));
             Assert.AreEqual("both", back.Quantification.Scan);
             Assert.AreEqual(3, back.Quantification.Ms3Targets);
+            Assert.AreEqual(4, back.Quantification.SpsWindows);
             Assert.AreEqual(80, back.MsSettings.MS3Quant.Value.CollisionEnergy);
             parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(authored.ToCppJson());
             quant = (Dictionary<string, object>)parsed["quantification"];
             Assert.AreEqual("both", quant["scan"]);
             Assert.AreEqual(3, Convert.ToInt32(quant["ms3_targets"]));
+            Assert.AreEqual(4, Convert.ToInt32(quant["sps_windows"]));
             var q3 = (Dictionary<string, object>)((Dictionary<string, object>)parsed["ms_settings"])["ms3_quant"];
             Assert.AreEqual("HCD", q3["activation"]);
             Assert.AreEqual(80, Convert.ToInt32(q3["collision_energy"]));
