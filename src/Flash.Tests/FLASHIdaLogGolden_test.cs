@@ -158,6 +158,39 @@ namespace Flash.Tests
             RunCase("quant_ms3_yield_gate", "method_quant_ms3_yield_gate.json", "ms1_itmt_ydfz.txt",
                     "ms2_itmt_ydfz_cid28_scan1325.txt", minMs2Commands: 1, ms3FixtureFor: QuantMs3Reporters);
 
+        // ADR-0080: method_quant_ms3_sps.json is method_quant_ms3.json with quantification.sps_windows 10, so every
+        // difference from quant_ms3 is the SPS fill of the one 'Q' MS3's stage 1. AssertSpsWindows is in-test.
+        [Test, Category("Tier2")]
+        public void Golden_QuantMs3Sps() =>
+            RunCase("quant_ms3_sps", "method_quant_ms3_sps.json", "ms1_itmt_ydfz.txt", "ms2_itmt_ydfz_cid28_scan1325.txt",
+                    minMs2Commands: 1, ms3FixtureFor: QuantMs3Reporters,
+                    postDriveAssert: p => { AssertQuantMs3Bought(p); AssertSpsWindows(p); });
+
+        /// <summary>
+        /// ADR-0080: at least one quantification MS3 opens more than one stage-1 window (the stage-1 group of its
+        /// precursor_mz cell, ',' between windows), and quant_ms3.tsv holds exactly one row with a window for each of them.
+        /// </summary>
+        private static void AssertSpsWindows(string commandsPath)
+        {
+            string caseDir = Path.GetDirectoryName(commandsPath);
+            var cmds = ParseTsv(commandsPath, out var ch);
+            int cLvl = Array.IndexOf(ch, "ms_level"), cType = Array.IndexOf(ch, "scan_type"),
+                cId = Array.IndexOf(ch, "tracking_id"), cMz = Array.IndexOf(ch, "precursor_mz");
+            var pool = ParseTsv(Path.Combine(caseDir, LogGoldenComparer.QuantMs3Name), out var qh);
+            int qId = Array.IndexOf(qh, "tracking_id"), qWin = Array.IndexOf(qh, "window");
+            int multi = 0;
+            foreach (var r in cmds.Where(x => x[cLvl] == "3" && x[cType] == "quantification"))
+            {
+                var stages = r[cMz].Split(';');
+                Assert.That(stages.Length, Is.EqualTo(2), $"quantification MS3 {r[cId]}: precursor_mz {r[cMz]} is not two stages");
+                int windows = stages[1].Split(',').Length;
+                if (windows > 1) ++multi;
+                int rows = pool.Count(p => p[qId] == r[cId] && int.Parse(p[qWin]) >= 1);
+                Assert.That(rows, Is.EqualTo(windows), $"quantification MS3 {r[cId]}: {windows} windows, {rows} quant_ms3.tsv rows");
+            }
+            Assert.That(multi, Is.GreaterThanOrEqualTo(1), "no quantification MS3 opened a second stage-1 window");
+        }
+
         [Test, Category("Tier2")]
         public void Golden_QuantBoth() =>
             RunCase("quant_both", "method_quant_both.json", "ms1_itmt_ydfz.txt", "ms2_itmt_ydfz_cid28_scan1325.txt",

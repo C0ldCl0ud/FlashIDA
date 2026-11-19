@@ -41,9 +41,11 @@ namespace Flash.Tests
         public const string PooledName = "pooled_identification.tsv";
         // ADR-0079: the 6th stream, the W gate's rows (one per MS3 candidate of a W-gated plan); header only otherwise.
         public const string Ms3GateName = "ms3_gate.tsv";
+        // ADR-0080: the 7th stream, the SPS pool's rows (one per labelled peak of a dispatch that bought); header only otherwise.
+        public const string QuantMs3Name = "quant_ms3.tsv";
 
         public static readonly string[] FileNames =
-            { IdaLogName, CommandsName, ResultsName, IdentificationName, PooledName, Ms3GateName };
+            { IdaLogName, CommandsName, ResultsName, IdentificationName, PooledName, Ms3GateName, QuantMs3Name };
 
         // ID-bearing columns per TSV, resolved BY HEADER NAME (order-agnostic to the live column layout).
         // The NAME LISTS are visited in a FIXED logical order so BuildIdMap assigns T<n> labels in the same
@@ -117,6 +119,8 @@ namespace Flash.Tests
             { "target_w", "<W>" },
             { "w_rank", "<W>" }
         };
+        // ADR-0080: quant_ms3.tsv's id cells (the identification scan and the MS3 a peak went to; no wall clock).
+        private static readonly string[] QuantMs3IdColNames = { "parent_tracking_id", "tracking_id" };
 
         /// <summary>
         /// Build tracking_id -> T&lt;n&gt; by first appearance across the three TSVs in fixed order
@@ -140,6 +144,8 @@ namespace Flash.Tests
             AddIdsFromPooled(Path.Combine(caseDir, PooledName), Add);
             // ADR-0079: last, so every label of the five older streams keeps its number.
             AddIdsFromTsv(Path.Combine(caseDir, Ms3GateName), Ms3GateIdColNames, null, Add);
+            // ADR-0080: after it, for the same reason (its ids are scan_commands ids, so this adds none in practice).
+            AddIdsFromTsv(Path.Combine(caseDir, QuantMs3Name), QuantMs3IdColNames, null, Add);
 
             return map;
         }
@@ -191,6 +197,7 @@ namespace Flash.Tests
             if (fileName == IdentificationName) return NormalizeTsv(path, ids, IdfIdColNames, null, NoMaskNames, null);
             if (fileName == PooledName) return NormalizePooled(path, ids);
             if (fileName == Ms3GateName) return NormalizeTsv(path, ids, Ms3GateIdColNames, null, Ms3GateMaskNames, CmdDescriptionColName);
+            if (fileName == QuantMs3Name) return NormalizeTsv(path, ids, QuantMs3IdColNames, null, NoMaskNames, null);
             if (fileName == IdaLogName) return NormalizeIdaLog(path);
             throw new ArgumentException("unknown log file: " + fileName);
         }
