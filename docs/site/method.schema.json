@@ -81,6 +81,13 @@
           "minItems": 3,
           "x-default-text": "required, three entries",
           "x-unit": "ppm"
+        },
+        "ms3_min_cos": {
+          "type": "number",
+          "description": "Isotope cosine an MS3 spectrum is deconvolved with. An MS3 is deconvolved at MS level 3, with the third `tol` entry and this cosine; MS1 and MS2 keep a cosine of 0.85. A lower cosine admits fragment masses whose isotope envelope is less clean.",
+          "default": 0.5,
+          "minimum": 0.5,
+          "maximum": 1.0
         }
       },
       "description": "How spectra are deconvolved into masses, and the two qscore thresholds precursor selection applies to the result. The charge and mass limits act on MS1; MSn spectra take their limits from the isolated precursor."

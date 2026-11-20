@@ -152,7 +152,8 @@ namespace Flash
                     max_charge = c.Deconvolution.MaxCharge,
                     min_mass = c.Deconvolution.MinMass,
                     max_mass = c.Deconvolution.MaxMass,
-                    tol = c.Deconvolution.Tolerances
+                    tol = c.Deconvolution.Tolerances,
+                    ms3_min_cos = c.Deconvolution.Ms3MinCos
                 },
                 precursor_selection = new JsonPrecursorSelectionConfig
                 {
@@ -700,6 +701,7 @@ namespace Flash
             c.Deconvolution.MinMass = 511;
             c.Deconvolution.MaxMass = 49001;
             c.Deconvolution.Tolerances = new double[] { 11, 12, 13 };
+            c.Deconvolution.Ms3MinCos = 0.6;
 
             c.PrecursorSelection.RTWindow = 181;
             c.PrecursorSelection.Targeting = "inclusion";

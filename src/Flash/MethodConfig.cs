@@ -55,6 +55,10 @@ namespace Flash
         [JsonKey("tol")]
         [Description("Mass tolerance array [down, up] in ppm")]
         public double[] Tolerances { get; set; } = new double[] { 10, 10 };
+
+        [JsonKey("ms3_min_cos")]
+        [Description("Isotope cosine an MS3 is deconvolved with, at MS level 3 (0.5-1.0); MS1 and MS2 keep 0.85")]
+        public double Ms3MinCos { get; set; } = 0.5;
     }
 
     // ADR-0078. precursor_selection.charge_check: the charge of a selected precursor measured from its window's isotope
@@ -977,6 +981,7 @@ namespace Flash
         public double min_mass { get; set; }
         public double max_mass { get; set; }
         public double[] tol { get; set; }
+        public double ms3_min_cos { get; set; }
     }
 
     // These FIELD NAMES are the wire format -- JavaScriptSerializer emits them verbatim and there is

@@ -15,7 +15,8 @@
       11,
       12,
       13
-    ]
+    ],
+    "ms3_min_cos": 0.6
   },
   "precursor_selection": {
     "rt_window": 181,
