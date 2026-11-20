@@ -88,6 +88,23 @@
           "default": 0.5,
           "minimum": 0.5,
           "maximum": 1.0
+        },
+        "mass_offset_start_ppm": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ms2": {
+              "type": "number",
+              "description": "Start value of the MS2 run mass offset. Every LC method on record reads within a few ppm of 0; absent means 0.",
+              "x-unit": "ppm"
+            },
+            "ms3": {
+              "type": "number",
+              "description": "Start value of the MS3 run mass offset. It follows the MS3 AGC target: 0 at 5e5, about -25 at 5e6, about -185 at 5e7. Authored, even as 0, it arms the fallback vote, which moves a wrong start to the offset the MS3 show; absent means 0 and no vote.",
+              "x-unit": "ppm"
+            }
+          },
+          "description": "The offset each MS level's deconvolved masses carry in a run, before any scan is seen. Every mass is compared with theory after its level's run offset is taken out; the offset starts here and is then estimated from the run's confident matches (prior width 0.6 ppm, nothing forgotten). MS2 and MS3 never share an offset. The FLASHTnT search itself is not corrected."
         }
       },
       "description": "How spectra are deconvolved into masses, and the two qscore thresholds precursor selection applies to the result. The charge and mass limits act on MS1; MSn spectra take their limits from the isolated precursor."

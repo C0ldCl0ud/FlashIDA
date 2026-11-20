@@ -153,7 +153,13 @@ namespace Flash
                     min_mass = c.Deconvolution.MinMass,
                     max_mass = c.Deconvolution.MaxMass,
                     tol = c.Deconvolution.Tolerances,
-                    ms3_min_cos = c.Deconvolution.Ms3MinCos
+                    ms3_min_cos = c.Deconvolution.Ms3MinCos,
+                    // ADR-0081: written only as authored; an absent MS3 entry must stay absent (it decides the vote)
+                    mass_offset_start_ppm = c.Deconvolution.MassOffsetStartPpm == null ? null : new JsonMassOffsetStartConfig
+                    {
+                        ms2 = c.Deconvolution.MassOffsetStartPpm.Ms2,
+                        ms3 = c.Deconvolution.MassOffsetStartPpm.Ms3
+                    }
                 },
                 precursor_selection = new JsonPrecursorSelectionConfig
                 {
@@ -702,6 +708,7 @@ namespace Flash
             c.Deconvolution.MaxMass = 49001;
             c.Deconvolution.Tolerances = new double[] { 11, 12, 13 };
             c.Deconvolution.Ms3MinCos = 0.6;
+            c.Deconvolution.MassOffsetStartPpm = new MassOffsetStartConfig { Ms2 = 0.5, Ms3 = -25 };
 
             c.PrecursorSelection.RTWindow = 181;
             c.PrecursorSelection.Targeting = "inclusion";

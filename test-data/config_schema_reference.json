@@ -16,7 +16,11 @@
       12,
       13
     ],
-    "ms3_min_cos": 0.6
+    "ms3_min_cos": 0.6,
+    "mass_offset_start_ppm": {
+      "ms2": 0.5,
+      "ms3": -25
+    }
   },
   "precursor_selection": {
     "rt_window": 181,

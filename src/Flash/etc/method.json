@@ -15,7 +15,8 @@
       20,
       20,
       20
-    ]
+    ],
+    "mass_offset_start_ppm": {"ms2": 0, "ms3": 0}
   },
   "faims": {
     "cv_values": [],

@@ -59,6 +59,26 @@ namespace Flash
         [JsonKey("ms3_min_cos")]
         [Description("Isotope cosine an MS3 is deconvolved with, at MS level 3 (0.5-1.0); MS1 and MS2 keep 0.85")]
         public double Ms3MinCos { get; set; } = 0.5;
+
+        // ADR-0081. Null (unauthored): every level starts at 0 ppm and the MS3 fallback vote is off.
+        [JsonKey("mass_offset_start_ppm")]
+        [Description("Start value of the run mass offset of each MS level, in ppm (ADR-0081); an authored ms3 arms the MS3 fallback vote")]
+        public MassOffsetStartConfig MassOffsetStartPpm { get; set; }
+    }
+
+    // ADR-0081: deconvolution.mass_offset_start_ppm, the offset each MS level's masses carry at the start of a run. Each
+    // entry is optional; an absent entry starts at 0 ppm. ToCppJson writes only the authored entries, because the engine
+    // arms the MS3 fallback vote only for an authored MS3 value, 0 included.
+    [JsonKey("mass_offset_start_ppm")]
+    public class MassOffsetStartConfig
+    {
+        [JsonKey("ms2")]
+        [Description("Start value of the MS2 run mass offset in ppm (LC: 0)")]
+        public double? Ms2 { get; set; }
+
+        [JsonKey("ms3")]
+        [Description("Start value of the MS3 run mass offset in ppm (AGC 5e5: 0; 5e6: about -25; 5e7: about -185); authored, it arms the fallback vote")]
+        public double? Ms3 { get; set; }
     }
 
     // ADR-0078. precursor_selection.charge_check: the charge of a selected precursor measured from its window's isotope
@@ -982,6 +1002,13 @@ namespace Flash
         public double max_mass { get; set; }
         public double[] tol { get; set; }
         public double ms3_min_cos { get; set; }
+        public JsonMassOffsetStartConfig mass_offset_start_ppm { get; set; }   // null: the key is not written (ADR-0081)
+    }
+
+    public class JsonMassOffsetStartConfig
+    {
+        public double? ms2 { get; set; }   // null: not written, the level starts at 0
+        public double? ms3 { get; set; }   // null: not written, 0 and no fallback vote
     }
 
     // These FIELD NAMES are the wire format -- JavaScriptSerializer emits them verbatim and there is
