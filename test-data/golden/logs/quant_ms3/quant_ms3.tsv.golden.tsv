@@ -1,0 +1,4 @@
+parent_tracking_id	precursor_id	tracking_id	window	ion_type	ion_index	charge	mz	width	ms2_intensity	window_snr	cys_positions	predicted_bond_yield	status
+T3	1	T4	1	y	35	5	835.162	2	58316.1	171.818	52	-1	anchor
+T3	1		0	y	17	3	734.573	2	1690.58	0.400272	52	-1	snr
+T3	1		0	y	35	6	696.052	2	1684.77	3.19806	52	-1	no_room
