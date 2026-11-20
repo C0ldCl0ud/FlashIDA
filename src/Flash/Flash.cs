@@ -246,6 +246,9 @@ namespace Flash
 
             // First point at which `log` exists; these two lines used to sit next to the load.
             log.Info(String.Format("Logging to {0}", runFolder));
+            // Engine build 1: which build runs. The engine writes its own commit and CI run to events.log ([ENGINE]);
+            // the two logs join on ci_run.
+            log.Info(String.Format("FlashIDA commit {0} ci_run={1}", BuildInfo.GitSha, BuildInfo.CiRun));
 
             // Earliest possible stop trigger: registered as soon as `log` exists, so a Ctrl+C during
             // instrument connection is still an orderly stop rather than a kill.
@@ -653,6 +656,16 @@ namespace Flash
             {
                 log.Debug(String.Format("RECD {0} MS2 Scan #{1}; ID: {2}; depth {3}; Precursor: {4:f04}",
                     msScan.Header["MassAnalyzer"], msScan.Header["Scan"], scanId, outstanding, msScan.Header["PrecursorMass[0]"]));
+            }
+            else if (msScan.Header["MSOrder"] == "3")
+            {
+                // Engine build 1: an MS3 is logged like an MS2, with both stages' precursor masses as the header gives
+                // them. A key the header does not carry prints n/a, never throws on the acquisition thread.
+                string p0, p1;
+                if (!msScan.Header.TryGetValue("PrecursorMass[0]", out p0)) p0 = "n/a";
+                if (!msScan.Header.TryGetValue("PrecursorMass[1]", out p1)) p1 = "n/a";
+                log.Debug(String.Format("RECD {0} MS3 Scan #{1}; ID: {2}; depth {3}; Precursor: {4}; {5}",
+                    msScan.Header["MassAnalyzer"], msScan.Header["Scan"], scanId, outstanding, p0, p1));
             }
 
             //when handshake scan received switch to custom control mode

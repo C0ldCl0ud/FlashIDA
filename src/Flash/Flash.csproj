@@ -160,4 +160,24 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- Engine build 1: the commit and the CI run this Flash.exe was built from, written to FlashLog.log at start. Generated
+       into obj/, never committed; "unknown" / "local" where git or the CI run id is not available. -->
+  <Target Name="FlashIdaBuildInfo" BeforeTargets="CoreCompile">
+    <Exec Command="git rev-parse HEAD" ConsoleToMSBuild="true" StandardOutputImportance="low" StandardErrorImportance="low"
+          IgnoreExitCode="true" WorkingDirectory="$(MSBuildProjectDirectory)">
+      <Output TaskParameter="ConsoleOutput" PropertyName="FlashIdaGitOut" />
+      <Output TaskParameter="ExitCode" PropertyName="FlashIdaGitExit" />
+    </Exec>
+    <PropertyGroup>
+      <FlashIdaGitSha Condition="'$(FlashIdaGitExit)' == '0'">$(FlashIdaGitOut)</FlashIdaGitSha>
+      <FlashIdaGitSha Condition="'$(FlashIdaGitExit)' != '0'">unknown</FlashIdaGitSha>
+      <FlashIdaCiRun>$(GITHUB_RUN_ID)</FlashIdaCiRun>
+      <FlashIdaCiRun Condition="'$(FlashIdaCiRun)' == ''">local</FlashIdaCiRun>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)BuildInfo.g.cs" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="namespace Flash { internal static class BuildInfo { public const string GitSha = &quot;$(FlashIdaGitSha)&quot;%3B public const string CiRun = &quot;$(FlashIdaCiRun)&quot;%3B } }" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)BuildInfo.g.cs" />
+    </ItemGroup>
+  </Target>
 </Project>
