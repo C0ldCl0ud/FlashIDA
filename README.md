@@ -49,3 +49,11 @@ Advanced usage is discussed in [here](Usage.pdf)
 ## Publication
 
 Jeong, K., Babović, M., Gorshkov, V. et al. FLASHIda enables intelligent data acquisition for top–down proteomics to boost proteoform identification counts. Nat Commun 13, 4407 (2022). https://doi.org/10.1038/s41467-022-31922-z
+
+## Experimental simulated acquisition
+
+A versioned, directory-based MS1 replay mode is available without a mass
+spectrometer: `Flash.exe --simulate-directory DIRECTORY METHOD.json`.
+It supports an acknowledged adaptive acquisition clock with the WSL producer.
+See [docs/SIMULATED_ACQUISITION.md](docs/SIMULATED_ACQUISITION.md).
+MS2 requests are reported as unfulfilled; no MS2 spectra are fabricated.
