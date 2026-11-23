@@ -66,7 +66,31 @@ namespace Flash.IDA
             return parsed;
         }
 
+        // The WSL producer writes a .tmp file, then atomically renames it to
+        // .scan on NTFS. File.Exists may observe the final path a moment before
+        // Windows allows another process to open it. Retry *only* the two
+        // Windows sharing/lock errors, for a bounded 5 seconds. Malformed
+        // spectra, missing files, and unrelated I/O errors remain fatal.
         public static SimulatedSpectrum ReadScan(string path)
+        {
+            const int attempts = 100;
+            for (int attempt = 0; ; attempt++)
+            {
+                try
+                {
+                    return ReadScanOnce(path);
+                }
+                catch (IOException ex)
+                {
+                    int win32 = ex.HResult & 0xFFFF;
+                    if ((win32 != 32 && win32 != 33) || attempt >= attempts - 1)
+                        throw;
+                    Thread.Sleep(50);
+                }
+            }
+        }
+
+        private static SimulatedSpectrum ReadScanOnce(string path)
         {
             using (var reader = new StreamReader(path, Encoding.UTF8, true))
             {
