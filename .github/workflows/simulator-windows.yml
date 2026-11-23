@@ -1,0 +1,49 @@
+name: Standalone FLASHIda simulator (Windows)
+
+on:
+  push:
+    branches: [feature/simulated-acquisition]
+    paths:
+      - 'src/Flash.Simulator.sln'
+      - 'src/Flash.Simulator/**'
+      - 'src/Flash.Simulator.Tests/**'
+      - 'src/Flash/IDA/ScanCommand.cs'
+      - 'src/Flash/IDA/Simulation*.cs'
+      - 'src/Flash/IDA/SimulatedAcquisition.cs'
+      - 'src/Flash/MethodConfig.cs'
+      - 'src/Flash/MethodParameters.cs'
+      - 'src/Flash/IDA/MethodConfigSerializer.cs'
+      - 'src/Flash.Tests/SimulationProtocolTests.cs'
+      - '.github/workflows/simulator-windows.yml'
+  pull_request:
+    paths:
+      - 'src/Flash.Simulator.sln'
+      - 'src/Flash.Simulator/**'
+      - 'src/Flash.Simulator.Tests/**'
+      - 'src/Flash/IDA/ScanCommand.cs'
+      - 'src/Flash/IDA/Simulation*.cs'
+      - 'src/Flash/IDA/SimulatedAcquisition.cs'
+      - 'src/Flash/MethodConfig.cs'
+      - 'src/Flash/MethodParameters.cs'
+      - 'src/Flash/IDA/MethodConfigSerializer.cs'
+      - 'src/Flash.Tests/SimulationProtocolTests.cs'
+      - '.github/workflows/simulator-windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-standalone:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: microsoft/setup-msbuild@v2
+      - uses: NuGet/setup-nuget@v2
+      - name: Restore standalone NUnit packages
+        run: nuget restore .\src\Flash.Simulator.sln -NonInteractive
+      - name: Compile simulator and tests (no Thermo assemblies)
+        run: msbuild .\src\Flash.Simulator.sln /m /t:Build /p:Configuration=Debug /p:Platform=x64 /verbosity:minimal
+      - name: Run simulation tests against standalone executable
+        shell: pwsh
+        run: '& ".\src\packages\NUnit.ConsoleRunner.3.16.3\tools\nunit3-console.exe" ".\src\Flash.Simulator.Tests\bin\x64\Debug\Flash.Simulator.Tests.dll" --noresult'
