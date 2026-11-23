@@ -14,6 +14,27 @@ namespace Flash.Tests
     [TestFixture]
     public class SimulationProtocolTests
     {
+        private static void DeleteDirectory(string directory)
+        {
+            // NTFS/Windows can briefly report "directory not empty" after the
+            // consumer has closed its atomically replaced status file.
+            // A retry avoids mistaking this cleanup race for a protocol failure.
+            for (int attempt = 0; attempt < 20; attempt++)
+            {
+                try
+                {
+                    if (Directory.Exists(directory))
+                        Directory.Delete(directory, true);
+                    return;
+                }
+                catch (IOException)
+                {
+                    if (attempt == 19) throw;
+                    Thread.Sleep(50);
+                }
+            }
+        }
+
         private static string NewDirectory()
         {
             string path = Path.Combine(Path.GetTempPath(), "flashida_sim_" + Guid.NewGuid().ToString("N"));
@@ -76,7 +97,7 @@ namespace Flash.Tests
             finally
             {
                 Thread.CurrentThread.CurrentCulture = saved;
-                Directory.Delete(directory, true);
+                DeleteDirectory(directory);
             }
         }
 
@@ -100,7 +121,7 @@ namespace Flash.Tests
                     Assert.Throws<FormatException>(() => SimulationProtocol.ReadScan(file));
                 }
             }
-            finally { Directory.Delete(directory, true); }
+            finally { DeleteDirectory(directory); }
         }
 
         [Test, Category("Tier1")]
@@ -109,11 +130,12 @@ namespace Flash.Tests
             string directory = NewDirectory();
             var entered = new ManualResetEventSlim(false);
             var release = new ManualResetEventSlim(false);
+            Task run = null;
             try
             {
                 var consumer = new SimulationDirectoryConsumer(directory,
                     new BlockingProcessor(entered, release), pollMilliseconds: 5, inputTimeoutSeconds: 5);
-                Task run = Task.Run(() => consumer.Run());
+                run = Task.Run(() => consumer.Run());
 
                 Until(() => File.Exists(Path.Combine(directory, "consumer_status.json")), "ready status missing");
                 Publish(directory, 1, ScanText(1));
@@ -139,7 +161,12 @@ namespace Flash.Tests
             finally
             {
                 release.Set();
-                Directory.Delete(directory, true);
+                if (run != null)
+                {
+                    try { run.Wait(TimeSpan.FromSeconds(10)); }
+                    catch (AggregateException) { /* failure already surfaced by test */ }
+                }
+                DeleteDirectory(directory);
             }
         }
 
@@ -155,7 +182,7 @@ namespace Flash.Tests
                 Assert.Throws<IOException>(() => consumer.Run());
                 Assert.AreEqual("failed", State(directory)["state"]);
             }
-            finally { Directory.Delete(directory, true); }
+            finally { DeleteDirectory(directory); }
         }
 
         [Test, Category("Tier1")]
