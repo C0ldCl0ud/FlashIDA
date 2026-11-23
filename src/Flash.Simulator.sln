@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flash.Simulator", "Flash.Simulator\Flash.Simulator.csproj", "{3E39F595-CB50-4D4A-A527-3ED3A5831BA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flash.Simulator.Tests", "Flash.Simulator.Tests\Flash.Simulator.Tests.csproj", "{A88251F9-6698-4EDB-9E5E-AB9752EE084B}"
+EndProject
+Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|x64 = Debug|x64
+        Release|x64 = Release|x64
+    EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+        {3E39F595-CB50-4D4A-A527-3ED3A5831BA3}.Debug|x64.ActiveCfg = Debug|x64
+        {3E39F595-CB50-4D4A-A527-3ED3A5831BA3}.Debug|x64.Build.0 = Debug|x64
+        {3E39F595-CB50-4D4A-A527-3ED3A5831BA3}.Release|x64.ActiveCfg = Release|x64
+        {3E39F595-CB50-4D4A-A527-3ED3A5831BA3}.Release|x64.Build.0 = Release|x64
+        {A88251F9-6698-4EDB-9E5E-AB9752EE084B}.Debug|x64.ActiveCfg = Debug|x64
+        {A88251F9-6698-4EDB-9E5E-AB9752EE084B}.Debug|x64.Build.0 = Debug|x64
+        {A88251F9-6698-4EDB-9E5E-AB9752EE084B}.Release|x64.ActiveCfg = Release|x64
+        {A88251F9-6698-4EDB-9E5E-AB9752EE084B}.Release|x64.Build.0 = Release|x64
+    EndGlobalSection
+    GlobalSection(SolutionProperties) = preSolution
+        HideSolutionNode = FALSE
+    EndGlobalSection
+EndGlobal
