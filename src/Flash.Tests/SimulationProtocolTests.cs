@@ -66,8 +66,28 @@ namespace Flash.Tests
 
         private static Dictionary<string, object> State(string directory)
         {
-            return new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(
-                File.ReadAllText(Path.Combine(directory, "consumer_status.json")));
+            string path = Path.Combine(directory, "consumer_status.json");
+            for (int attempt = 0; attempt < 20; attempt++)
+            {
+                try
+                {
+                    // The writer atomically replaces this path. Allow delete sharing on
+                    // Windows so the reader cannot block an otherwise valid status update.
+                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
+                        FileShare.ReadWrite | FileShare.Delete))
+                    using (var reader = new StreamReader(stream))
+                    {
+                        return new JavaScriptSerializer()
+                            .Deserialize<Dictionary<string, object>>(reader.ReadToEnd());
+                    }
+                }
+                catch (IOException)
+                {
+                    if (attempt == 19) throw;
+                    Thread.Sleep(5);
+                }
+            }
+            throw new IOException("Could not read simulation status");
         }
 
         private static void Until(Func<bool> predicate, string what)
