@@ -109,6 +109,8 @@
     <Compile Include="DataPipe.cs" />
     <Compile Include="Flash.cs" />
     <Compile Include="IDA\FLASHIdaWrapper.cs" />
+    <Compile Include="IDA\ScanCommand.cs" />
+    <Compile Include="IDA\SimulationNativeBridge.cs" />
     <Compile Include="IDA\SimulationProtocol.cs" />
     <Compile Include="IDA\SimulatedAcquisition.cs" />
     <Compile Include="IDA\UnifiedScanProcessor.cs" />
