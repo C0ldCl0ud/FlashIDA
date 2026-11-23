@@ -47,3 +47,11 @@ jobs:
       - name: Run simulation tests against standalone executable
         shell: pwsh
         run: '& ".\src\packages\NUnit.ConsoleRunner.3.16.3\tools\nunit3-console.exe" ".\src\Flash.Simulator.Tests\bin\x64\Debug\Flash.Simulator.Tests.dll" --noresult'
+      # Only the managed EXE is exported. Do not overwrite the user's
+      # previously validated native OpenMS.dll with bundled build-time DLLs.
+      - name: Upload patched standalone simulator EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: flashida-simulator-managed-exe
+          path: src/Flash.Simulator/bin/x64/Debug/Flash.Simulator.exe
+          if-no-files-found: error
