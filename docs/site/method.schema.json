@@ -764,6 +764,13 @@
                 "0066"
               ]
             },
+            "proteins": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The proteins a characterization MS3 may be planned for, as accessions. An entry is the whole FASTA identifier or the accession of `db|ACC|NAME`, so `P0A7K2` names `sp|P0A7K2|RL7_ECOLI`; matching is case-sensitive. A live identification of any other protein gets no MS3 and logs `[MS3-PLAN] reason=protein_not_listed`; its MS2, identification and close-out are unchanged. An empty list, or an entry the reference does not hold, is refused at load. Absent: every protein."
+            },
             "yield_gate": {
               "type": "object",
               "additionalProperties": false,

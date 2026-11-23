@@ -387,6 +387,7 @@ namespace Flash
                     fragment_charges = cz.FragmentCharges,
                     per_proteoform = cz.PerProteoform,   // ADR-0066
                     yield_gate = ToJsonYieldGate(cz.YieldGate),   // ADR-0069
+                    proteins = cz.Proteins == null ? null : cz.Proteins.ToArray(),
                     order = cz.Order,
                     exploration = ToJsonExploration(cz.Exploration)
                 }
@@ -991,6 +992,7 @@ namespace Flash
                 RankBy = "intensity",  // non-default: yield
                 Model = "bond_yield"   // ADR-0076: see the quantification gate above
             };
+            c.Identification.Characterization.Proteins = new List<string> { "sequence" };   // the inline reference's accession
             c.Identification.Characterization.Order = "random";   // non-default: ranked
             c.Identification.Characterization.Exploration = new ExplorationBlockConfig
             {

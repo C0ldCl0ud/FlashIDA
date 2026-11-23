@@ -687,6 +687,11 @@ namespace Flash
         [Description("The MS3 yield gate (ADR-0069): present, every characterization MS3 target, in every mode and with or without per_proteoform, is admitted only at a charge whose predicted bond yield reaches the threshold; a refused target hands its place on. A target with no ion index (a raw mass that matches no ion) is admitted untested. Absent: no gate.")]
         public YieldGateConfig YieldGate { get; set; }
 
+        // Null = absent = every protein. C++ owns every check (an empty list, a blank entry, an entry not in the reference).
+        [JsonKey("proteins")]
+        [Description("The proteins a characterization MS3 may be planned for, as accessions: an entry is the whole FASTA identifier or the accession of db|ACC|NAME (P0A7K2 names sp|P0A7K2|RL7_ECOLI), case-sensitive. A live identification of any other protein gets no MS3; its MS2, identification and close-out are unchanged. An entry the reference does not hold is refused at load. Absent: every protein.")]
+        public List<string> Proteins { get; set; }
+
         // Always emitted as a real string; the C++ side refuses anything but the three values, and
         // "interleaved" under a mode without groups (ADR-0073).
         [JsonKey("order")]
@@ -1293,6 +1298,7 @@ namespace Flash
         public string fragment_charges { get; set; }
         public bool per_proteoform { get; set; }
         public JsonYieldGateConfig yield_gate { get; set; }   // ADR-0069; null when unauthored
+        public string[] proteins { get; set; }                // null when unauthored
         public string order { get; set; }
         public JsonExplorationBlockConfig exploration { get; set; }
     }
