@@ -540,6 +540,11 @@ namespace Flash.IDA
         /// <param name="args">Command line arguments</param>
         static public void Main(string[] args)
         {
+            if (SimulationAcquisitionCli.IsInvocation(args))
+            {
+                Environment.ExitCode = SimulationAcquisitionCli.Run(args);
+                return;
+            }
             if (args.Length < 3)
             {
                 Console.WriteLine("Usage: input_file output_file method.json [ms2_spectrum_file]");
