@@ -7,12 +7,37 @@ positional test harness remain unchanged.
 
 ## Start FLASHIda on Windows
 
-Build the x64 .NET Framework 4.8 `src/Flash.sln` solution with a matching
-native `OpenMS.dll` and the existing dependencies. Both executable entry
-points accept the additional, opt-in invocation:
+Build **`src/Flash.Simulator.sln`**, not `src/Flash.sln`. The latter is the
+real instrument controller and still needs Thermo's proprietary iAPI assemblies.
+The new simulator solution contains only instrument-independent sources.
+
+Install Visual Studio 2022, the .NET desktop development workload and the
+.NET Framework 4.8 targeting pack, then open Developer PowerShell:
 
 ```powershell
-.\Flash.exe --simulate-directory "C:\flashida_sim\run_AA" "C:\flashida\method.json"
+cd C:\dev\FlashIDA
+git switch feature/simulated-acquisition
+git pull --ff-only
+nuget restore .\src\Flash.Simulator.sln
+msbuild .\src\Flash.Simulator.sln /t:Build /p:Configuration=Debug /p:Platform=x64 /m
+```
+
+Run the standalone NUnit tests without any Thermo dependencies:
+
+```powershell
+.\src\packages\NUnit.ConsoleRunner.3.16.3\tools\nunit3-console.exe `
+  .\src\Flash.Simulator.Tests\bin\x64\Debug\Flash.Simulator.Tests.dll --noresult
+```
+
+The compiled simulator copies the repository's native OpenMS DLLs and shared
+data into its output directory. Real acquisition still requires a compatible
+native `OpenMS.dll` (the committed DLL may be older than the current bridge).
+
+Start the standalone executable with:
+
+```powershell
+.\src\Flash.Simulator\bin\x64\Debug\Flash.Simulator.exe `
+  --simulate-directory "C:\flashida_sim\run_AA" "C:\flashida\method.json"
 ```
 
 The directory must be new: do not reuse one with `consumer_status.json` or
