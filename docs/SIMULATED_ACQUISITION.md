@@ -20,7 +20,7 @@ The directory must be new: do not reuse one with `consumer_status.json` or
 The method must have matching FAIMS settings for the source (v1 supports
 one CV or FAIMS off). This command **does not** connect to Thermo iAPI.
 
-Then run the matching Python producer in WSL from the thesis environment:
+Then run the matching Python producer in WSL from the thesis environment. **For a cold RAW conversion cache, start the WSL producer first**; it prepares and caches spectra before waiting for the Windows consumer, so a long first conversion does not exhaust the consumer's input timeout. Start this Windows command after the WSL log says it is waiting for FLASHIda (within the default five-minute ready timeout):
 
 ```bash
 simulate_instrument --input /path/to/ecoli_AA.raw \
