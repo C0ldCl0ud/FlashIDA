@@ -18,28 +18,26 @@ namespace Flash.IDA
 
     internal sealed class NativeSimulationEngine : ISimulationEngine, IDisposable
     {
-        private readonly FLASHIdaWrapper wrapper;
+        private readonly SimulationNativeBridge wrapper;
 
         public NativeSimulationEngine(MethodParameters method)
         {
-            wrapper = new FLASHIdaWrapper(method);
+            wrapper = new SimulationNativeBridge(method);
         }
 
         public int GetNextScanCommand(ref ScanCommand command)
         {
-            return wrapper.GetNextScanCommand(ref command);
+            return wrapper.NextCommand(ref command);
         }
 
         public int ProcessScan(SimulatedSpectrum scan, string description)
         {
-            return wrapper.ProcessScan(scan.Mzs, scan.Intensities, scan.RetentionTimeMinutes,
-                scan.MsLevel, description, scan.FaimsCv, scan.InstrumentScanNumber);
+            return wrapper.Process(scan, description);
         }
 
         public int AcknowledgeAgc(string description, double rtMinutes, double faimsCv)
         {
-            return wrapper.ProcessScan(new double[0], new double[0], rtMinutes, 1,
-                description, faimsCv, 0);
+            return wrapper.AcknowledgeAgc(description, rtMinutes, faimsCv);
         }
 
         public void Dispose() { wrapper.Dispose(); }
