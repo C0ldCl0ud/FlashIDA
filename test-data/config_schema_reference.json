@@ -124,6 +124,9 @@
         "model": "bond_yield",
         "apply": null
       },
+      "proteins": [
+        "sequence"
+      ],
       "order": "random",
       "exploration": {
         "metric": "kinetic_model",
