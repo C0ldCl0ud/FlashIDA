@@ -177,6 +177,11 @@ namespace Flash
 
         static void Main(string[] args)
         {
+            if (SimulationAcquisitionCli.IsInvocation(args))
+            {
+                Environment.ExitCode = SimulationAcquisitionCli.Run(args);
+                return;
+            }
             cliArgs = ParseCLI(args);
 
             // The method file is loaded HERE, not in InstrumentConnected where it used to live.
