@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -117,6 +118,41 @@ namespace Flash.Tests
             finally
             {
                 Thread.CurrentThread.CurrentCulture = saved;
+                DeleteDirectory(directory);
+            }
+        }
+
+        [Test, Category("Tier1")]
+        public void Codec_RetriesTemporaryWindowsFileShareViolation()
+        {
+            string directory = NewDirectory();
+            Task lockTask = null;
+            var acquired = new ManualResetEventSlim(false);
+            try
+            {
+                string file = Path.Combine(directory, "scans", SimulationProtocol.ScanFileName(1));
+                File.WriteAllText(file, ScanText(1));
+                lockTask = Task.Run(() =>
+                {
+                    using (var held = new FileStream(file, FileMode.Open,
+                        FileAccess.ReadWrite, FileShare.None))
+                    {
+                        acquired.Set();
+                        Thread.Sleep(300);
+                    }
+                });
+                Assert.IsTrue(acquired.Wait(TimeSpan.FromSeconds(5)), "Test lock was not acquired");
+                var timer = Stopwatch.StartNew();
+                var scan = SimulationProtocol.ReadScan(file);
+                Assert.AreEqual(1, scan.Sequence);
+                Assert.GreaterOrEqual(timer.ElapsedMilliseconds, 200,
+                    "Reader should wait for the temporary writer lock to clear");
+                Assert.IsTrue(lockTask.Wait(TimeSpan.FromSeconds(5)), "Lock task did not complete");
+            }
+            finally
+            {
+                if (lockTask != null) lockTask.Wait(TimeSpan.FromSeconds(5));
+                acquired.Dispose();
                 DeleteDirectory(directory);
             }
         }
